@@ -25,8 +25,12 @@
 static void test(void)
 {
     bool r;
+    u32 n;
     APNUM_int a;
-    r = APNUM_intFromDecStr(&a, "123");
+    r = APNUM_intFromDecStr(&a, "-123");
+    char buf[1024];
+    n = APNUM_intToDecStr(&a, buf, sizeof(buf));
+    printf("%s\n", buf);
     APNUM_intFree(&a);
 }
 
