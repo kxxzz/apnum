@@ -13,6 +13,7 @@
 
 
 
+
 #ifdef ARYLEN
 # undef ARYLEN
 #endif
@@ -23,6 +24,10 @@
 
 static void test(void)
 {
+    bool r;
+    APNUM_int a;
+    r = APNUM_intFromDecStr(&a, "123");
+    APNUM_intFree(&a);
 }
 
 
