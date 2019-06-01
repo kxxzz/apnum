@@ -29,14 +29,32 @@ static void test(void)
 
     {
         APNUM_int a = { 0 };
-        r = APNUM_intFromDecStr(&a, "-000012345000");
+        r = APNUM_intFromStr(&a, 10, "12345000");
+        assert(r);
         char buf[1024];
-        n = APNUM_intToDecStr(&a, buf, sizeof(buf));
+        n = APNUM_intToStr(&a, 10, buf, sizeof(buf));
         printf("%s\n", buf);
         APNUM_intFree(&a);
     }
 
+    {
+        APNUM_int a = { 0 };
+        APNUM_int b = { 0 };
+        r = APNUM_intFromStr(&a, 10, "92345");
+        assert(r);
+        r = APNUM_intFromStr(&b, 10, "-56789");
+        assert(r);
+        APNUM_int c = { 0 };
+        APNUM_intAdd(&c, &a, &b);
 
+        char buf[1024];
+        n = APNUM_intToStr(&c, 10, buf, sizeof(buf));
+        printf("%s\n", buf);
+
+        APNUM_intFree(&a);
+        APNUM_intFree(&b);
+        APNUM_intFree(&c);
+    }
 }
 
 
