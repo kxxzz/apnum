@@ -28,8 +28,8 @@ static void test(void)
     u32 n;
 
     {
-        APNUM_int a;
-        r = APNUM_intFromDecStr(&a, "-0");
+        APNUM_int a = { 0 };
+        r = APNUM_intFromDecStr(&a, "-000012345000");
         char buf[1024];
         n = APNUM_intToDecStr(&a, buf, sizeof(buf));
         printf("%s\n", buf);
