@@ -40,17 +40,17 @@ set (CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -DDEBUG")
 
 
 #include_directories (imp/vec)
-include_directories (imp/fgmp)
+#include_directories (imp/fgmp)
 
 file (GLOB IMP_SRC_FILES
     #imp/vec/vec.h
     #imp/vec/vec.c
-    imp/fgmp/gmp.h
-    imp/fgmp/gmp.c
+    #imp/fgmp/gmp.h
+    #imp/fgmp/gmp.c
     )
 
-source_group (imp FILES ${IMP_SRC_FILES})
-add_library (imp STATIC ${IMP_SRC_FILES})
+#source_group (imp FILES ${IMP_SRC_FILES})
+#add_library (imp STATIC ${IMP_SRC_FILES})
 
 
 
@@ -62,7 +62,7 @@ source_group (src FILES ${SRC_FILES})
 
 
 add_executable (main ${SRC_FILES})
-target_link_libraries (main imp)
+target_link_libraries (main)# imp)
 
 
 
