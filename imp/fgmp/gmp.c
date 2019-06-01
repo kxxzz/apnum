@@ -27,6 +27,7 @@
 # pragma warning(disable : 4101)
 # pragma warning(disable : 4715)
 #endif
+
 #include "gmp.h"
 #ifndef NULL
 #define NULL ((void *)0)
