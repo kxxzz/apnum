@@ -119,6 +119,7 @@ u32 APNUM_intToStr(const APNUM_int* x, u32 base, char* strBuf, u32 strBufSize)
 void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
     u32 len = max(a->data.length, b->data.length);
+    bool outNeg = true;
     vec_resize(&out->data, len);
     s8 carry = 0;
     for (u32 i = 0; i < len; ++i)
@@ -127,6 +128,8 @@ void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
         s8 eb = (i < b->data.length) ? b->data.data[i] : 0;
         ea = a->neg ? -ea : ea;
         eb = b->neg ? -eb : eb;
+        ea = outNeg ? -ea : ea;
+        eb = outNeg ? -eb : eb;
         s8 ec = ea + eb + carry;
 
         if (ec < 0)
@@ -153,6 +156,10 @@ void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
     if (vec_last(&out->data) == 0)
     {
         vec_pop(&out->data);
+    }
+    if (outNeg)
+    {
+        out->neg = true;
     }
 }
 

@@ -40,9 +40,9 @@ static void test(void)
     {
         APNUM_int a = { 0 };
         APNUM_int b = { 0 };
-        r = APNUM_intFromStr(&a, 10, "92345");
+        r = APNUM_intFromStr(&a, 10, "-92345");
         assert(r);
-        r = APNUM_intFromStr(&b, 10, "-56789");
+        r = APNUM_intFromStr(&b, 10, "56789");
         assert(r);
         APNUM_int c = { 0 };
         APNUM_intAdd(&c, &a, &b);
