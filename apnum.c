@@ -24,8 +24,14 @@ void APNUM_intFree(APNUM_int* x)
 bool APNUM_intFromDecStr(APNUM_int* out, const char* dec)
 {
     APNUM_int x = { 0 };
-    x.neg = '-' == dec[0];
     u32 len = (u32)strlen(dec);
+    if ((1 == len) && ('0' == dec[0]))
+    {
+        vec_push(&x.data, 0);
+        *out = x;
+        return true;
+    }
+    x.neg = '-' == dec[0];
     u32 sp = (('-' == dec[0]) || ('+' == dec[0])) ? 1 : 0;
     for (u32 i = sp; i < len; ++i)
     {
@@ -50,6 +56,12 @@ bool APNUM_intFromDecStr(APNUM_int* out, const char* dec)
 
 u32 APNUM_intToDecStr(const APNUM_int* x, char* decBuf, u32 decBufSize)
 {
+    if ((1 == x->data.length) && (0 == x->data.data[0]))
+    {
+        decBuf[0] = '0';
+        decBuf[1] = 0;
+        return 1;
+    }
     u32 sp = x->neg ? 1 : 0;
     u32 len = x->data.length + sp;
     if (decBufSize <= len)
