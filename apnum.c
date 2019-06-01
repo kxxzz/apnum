@@ -1,5 +1,9 @@
 #include "apnum.h"
 
+#include <malloc.h>
+#include <string.h>
+#include <math.h>
+
 
 
 
@@ -16,39 +20,15 @@
 
 void APNUM_intFree(APNUM_int* x)
 {
-    vec_free(&x->data);
+    mpz_clear(&x->impl);
 }
 
 
 
 bool APNUM_intFromDecStr(APNUM_int* out, const char* dec)
 {
-    APNUM_int x = { 0 };
-    u32 len = (u32)strlen(dec);
-    if ((1 == len) && ('0' == dec[0]))
-    {
-        vec_push(&x.data, 0);
-        *out = x;
-        return true;
-    }
-    x.neg = '-' == dec[0];
-    u32 sp = (('-' == dec[0]) || ('+' == dec[0])) ? 1 : 0;
-    for (u32 i = sp; i < len; ++i)
-    {
-        if ((dec[i] < '0') || (dec[i] > '9'))
-        {
-            return false;
-        }
-    }
-    u32 dataSize = len - sp;
-    vec_resize(&x.data, dataSize);
-    for (u32 i = sp; i < len; ++i)
-    {
-        u32 j = dataSize - 1 - (i - sp);
-        x.data.data[j] = dec[i] - '0';
-    }
-    *out = x;
-    return true;
+    int r = mpz_init_set_str(&out->impl, dec, 10);
+    return 0 == r;
 }
 
 
@@ -56,29 +36,9 @@ bool APNUM_intFromDecStr(APNUM_int* out, const char* dec)
 
 u32 APNUM_intToDecStr(const APNUM_int* x, char* decBuf, u32 decBufSize)
 {
-    if ((1 == x->data.length) && (0 == x->data.data[0]))
-    {
-        decBuf[0] = '0';
-        decBuf[1] = 0;
-        return 1;
-    }
-    u32 sp = x->neg ? 1 : 0;
-    u32 len = x->data.length + sp;
-    if (decBufSize <= len)
-    {
-        return len;
-    }
-    if (x->neg)
-    {
-        decBuf[0] = '-';
-    }
-    for (u32 i = sp; i < len; ++i)
-    {
-        u32 j = x->data.length - 1 - (i - sp);
-        decBuf[i] = x->data.data[j] + '0';
-    }
-    decBuf[len] = 0;
-    return len;
+    char* s = mpz_get_str(decBuf, 10, &x->impl);
+    u32 n = (u32)strnlen(s, decBufSize);
+    return n;
 }
 
 
