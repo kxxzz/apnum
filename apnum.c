@@ -151,7 +151,7 @@ void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
     assert(carry >= 0);
     if (carry > 0)
     {
-        vec_push(&out->data, carry);
+        vec_push(&out->data, 1);
     }
     if (vec_last(&out->data) == 0)
     {
