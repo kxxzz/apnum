@@ -13,11 +13,11 @@
  * CREDITS:
  *  Paul Rouse <par@r-cube.demon.co.uk> - generic bug fixes, mpz_sqrt and
  *    mpz_sqrtrem, and modifications to get fgmp to compile on a system 
- *    with int and long of different sizes (specifically MSDOS,286 compiler)
+ *    with int and long of different sizes (specifically MSDOS,286 compiler).
  *  Also see the file "notes" included with the fgmp distribution, for
  *    more credits.
  *
- * VERSION 1.0 - beta 5
+ * VERSION 1.0.1
  */
 
 #undef DEBUG
@@ -231,8 +231,8 @@ mp_limb a;
 void _mpz_realloc(x,size)
 MP_INT *x; mp_size size;
 {
+    int i;
     if (size > 1 && x->sz < size) {
-        int i;
 #ifdef DEBUG
     printf("realloc %08lx to size = %ld ", (long)(x->p),(long)(size));
 #endif
@@ -250,7 +250,9 @@ MP_INT *x; mp_size size;
         for (i=x->sz;i<size;i++)
             (x->p)[i] = 0;
         x->sz = size;
-    }
+    } else if (size < x->sz)
+        for (i=size; i<x->sz; i++)
+            (x->p)[i] = 0;
 }
 
 void dgset(x,i,n)
@@ -651,7 +653,8 @@ MP_INT *qq; MP_INT *rr; MP_INT *xx; MP_INT *yy;
         return;
     q = (MP_INT *)malloc(sizeof(MP_INT));
     r = (MP_INT *)malloc(sizeof(MP_INT));
-    x = (MP_INT *)malloc(sizeof(MP_INT)); y = (MP_INT *)malloc(sizeof(MP_INT));
+    x = (MP_INT *)malloc(sizeof(MP_INT)); 
+    y = (MP_INT *)malloc(sizeof(MP_INT));
     if (!x || !y || !q || !r)
         fatal("udiv: cannot allocate memory");
     mpz_init(q); mpz_init(x);mpz_init(y);mpz_init(r);
@@ -706,7 +709,8 @@ MP_INT *qq; MP_INT *rr; MP_INT *xx; MP_INT *yy;
                 if ((i+j)%2) 
                     x->p[(i+j)/2] = LOW(x->p[(i+j)/2]) | (u << HALFDIGITBITS);
                 else
-                    x->p[(i+j)/2] = (HIGH(x->p[(i+j)/2]) << HALFDIGITBITS) | u;
+                    x->p[(i+j)/2] = (HIGH(x->p[(i+j)/2]) 
+                        << HALFDIGITBITS) | u;
             }
             if (b) {
                 if ((j+i)%2) 
@@ -754,7 +758,8 @@ MP_INT *qq; MP_INT *rr; MP_INT *xx; MP_INT *yy;
                 if ((i+j)%2) 
                     x->p[(i+j)/2] = LOW(x->p[(i+j)/2]) | (m << HALFDIGITBITS);
                 else
-                    x->p[(i+j)/2] = (HIGH(x->p[(i+j)/2]) << HALFDIGITBITS) | m;
+                    x->p[(i+j)/2] 
+                        = (HIGH(x->p[(i+j)/2]) << HALFDIGITBITS) | m;
             }
             if (b) {
                 if ((j+i)%2) 
@@ -1237,6 +1242,12 @@ MP_INT *x; unsigned int size;
     }
     if (oflow) 
         (x->p)[digits-1] &= (((mp_limb)1 << oflow) - 1);
+    x->sn = 0;
+    for (i=0; i<digits; i++)
+        if ((x->p)[i]) {
+            x->sn = 1;
+            break;
+        }
 }
 void mpz_random2(x,size)
 MP_INT *x; unsigned int size;
@@ -1258,6 +1269,12 @@ MP_INT *x; unsigned int size;
     }
     if (oflow) 
         (x->p)[digits-1] &= (((mp_limb)1 << oflow) - 1);
+    x->sn = 0;
+    for (i=0; i<digits; i++)
+        if ((x->p)[i]) {
+            x->sn = 1;
+            break;
+        }
 }
 
 size_t mpz_size(x)
@@ -1649,7 +1666,8 @@ MP_INT *nn; int s;
  * with integers we have to consider carefully the termination conditions.
  * If we are seeking x = floor(sqrt(a)), the iteration is
  *     x_{n+1} = floor ((floor (a/x_n) + x_n)/2) == floor ((a + x_n^2)/(2*x))
- * If eps_n represents the error (exactly, eps_n and sqrt(a) real) in the form:
+ * If eps_n represents the error (exactly, eps_n and sqrt(a) real) in the 
+ *  form:
  *     x_n = (1 + eps_n) sqrt(a)
  * then it is easy to show that for a >= 4
  *     if 0 <= eps_n, then either 0 <= eps_{n+1} <= (eps_n^2)/2
@@ -1713,7 +1731,8 @@ void mpz_sqrtrem (root, rem, a)
         }
     }
     j >>= 1;                            /* z and j now as described above */
-    for (k=1, h=4; h < j+3; k++, h*=2); /* 2^(k+1) >= j+3, since a < 2^(2j+4) */
+    for (k=1, h=4; h < j+3; k++, h*=2); 
+        /* 2^(k+1) >= j+3, since a < 2^(2j+4) */
     mpz_init_set_ui (&r, (z>8) ? 4L : 3L);
     mpz_mul_2exp (&r, &r, j);
 

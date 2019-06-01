@@ -17,7 +17,7 @@
  *  Also see the file "notes" included with the fgmp distribution, for
  *    more credits.
  *
- * VERSION 1.0 - beta 5
+ * VERSION 1.0.1
  */
 
 #include <stdio.h>
