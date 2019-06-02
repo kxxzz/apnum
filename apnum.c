@@ -116,10 +116,56 @@ u32 APNUM_intToStr(const APNUM_int* x, u32 base, char* strBuf, u32 strBufSize)
 
 
 
+
+static int APNUM_intAbsCmp(const APNUM_int* a, const APNUM_int* b)
+{
+    if (a->data.length > b->data.length)
+    {
+        return 1;
+    }
+    else if (a->data.length < b->data.length)
+    {
+        return -1;
+    }
+    else
+    {
+        assert(a->data.length == b->data.length);
+        for (u32 i = 0; i < a->data.length; ++i)
+        {
+            u32 j = a->data.length - 1 - i;
+            s8 ea = a->data.data[j];
+            s8 eb = b->data.data[j];
+            if (ea > eb)
+            {
+                return 1;
+            }
+            else if (ea < eb)
+            {
+                return -1;
+            }
+        }
+    }
+    return 0;
+}
+
+
+
+
+
+
 void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
     u32 len = max(a->data.length, b->data.length);
-    bool outNeg = true;
+    bool outNeg;
+    if (a->neg && b->neg)
+    {
+        outNeg = true;
+    }
+    else if (a->neg || b->neg)
+    {
+        outNeg = APNUM_intAbsCmp(a, b) < 0;
+    }
+
     vec_resize(&out->data, len);
     s8 carry = 0;
     for (u32 i = 0; i < len; ++i)
@@ -165,10 +211,17 @@ void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
 
 
+
+
 void APNUM_intSub(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
-
+    APNUM_int negb;
+    negb.data = b->data;
+    negb.neg = !b->neg;
+    APNUM_intAdd(out, a, &negb);
 }
+
+
 
 
 
@@ -176,6 +229,8 @@ void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
 
 }
+
+
 
 
 
@@ -195,7 +250,20 @@ void APNUM_intDiv(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
 int APNUM_intCmp(const APNUM_int* a, const APNUM_int* b)
 {
-    return 0;
+    if (!a->neg && b->neg)
+    {
+        return 1;
+    }
+    else if (a->neg && !b->neg)
+    {
+        return -1;
+    }
+    int r = 1;
+    if (a->neg && b->neg)
+    {
+        r = -1;
+    }
+    return APNUM_intAbsCmp(a, b) * r;
 }
 
 
