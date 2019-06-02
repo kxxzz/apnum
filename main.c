@@ -42,10 +42,10 @@ static void test(void)
         APNUM_int b = { 0 };
         r = APNUM_intFromStr(&a, 10, "56789");
         assert(r);
-        r = APNUM_intFromStr(&b, 10, "-92345");
+        r = APNUM_intFromStr(&b, 10, "92345");
         assert(r);
         APNUM_int c = { 0 };
-        APNUM_intAdd(&c, &a, &b);
+        APNUM_intSub(&c, &a, &b);
 
         char buf[1024];
         n = APNUM_intToStr(&c, 10, buf, sizeof(buf));
