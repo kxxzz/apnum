@@ -219,7 +219,7 @@ void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
     {
         vec_push(&r.data, 1);
     }
-    while (vec_last(&r.data) == 0)
+    while (r.data.length && (vec_last(&r.data) == 0))
     {
         vec_pop(&r.data);
     }
@@ -289,29 +289,33 @@ void APNUM_intDiv(APNUM_int* out, APNUM_int* outRemain, const APNUM_int* a, cons
         return;
     }
     assert(b->data.length > 0);
-    u32 la = b->data.length;
     APNUM_int remain = { 0 };
     APNUM_int ea = { 0 };
     APNUM_int eb = { 0 };
     eb.data = b->data;
-    for (;;)
+    for (u32 i = 0; i < a->data.length; ++i)
     {
-        u8* pa = a->data.data + a->data.length - la;
-        rel = APNUM_absCmpInt(pa, la, b->data.data, b->data.length);
-        if (rel < 0)
+        u32 j = a->data.length - 1 - i;
+        vec_insert(&ea.data, 0, a->data.data[j]);
+        u32 er = 0;
+        for (;; ++er)
         {
-            ++la;
-            continue;
+            rel = APNUM_intCmpAbs(&ea, b);
+            if (rel < 0)
+            {
+                break;
+            }
+            APNUM_intSub(&ea, &ea, &eb);
         }
-        if (a->data.length - la > 0)
+        if ((r.data.length > 0) || er)
         {
-            break;
+            vec_insert(&r.data, 0, er);
         }
-        vec_resize(&ea.data, 0);
-        vec_pusharr(&ea.data, pa, la);
-        APNUM_intSub(&ea, &ea, &eb);
     }
-    APNUM_intFree(&ea);
+    r.neg = a->neg ? !b->neg : b->neg;
+    ea.neg = a->neg;
+    *out = r;
+    *outRemain = ea;
 }
 
 

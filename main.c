@@ -92,9 +92,9 @@ static void test(void)
     {
         APNUM_int a = { 0 };
         APNUM_int b = { 0 };
-        r = APNUM_intFromStr(&a, 10, "-88888");
+        r = APNUM_intFromStr(&a, 10, "246247");
         assert(r);
-        r = APNUM_intFromStr(&b, 10, "-22");
+        r = APNUM_intFromStr(&b, 10, "-123");
         assert(r);
         APNUM_int c = { 0 };
         APNUM_int d = { 0 };
