@@ -155,10 +155,9 @@ static int APNUM_intAbsCmp(const APNUM_int* a, const APNUM_int* b)
 
 void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
-    APNUM_int _c = { 0 };
-    APNUM_int* c = &_c;
+    APNUM_int r = { 0 };
     u32 len = max(a->data.length, b->data.length);
-    bool outNeg;
+    bool outNeg = false;
     if (a->neg && b->neg)
     {
         outNeg = true;
@@ -168,7 +167,7 @@ void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
         outNeg = APNUM_intAbsCmp(a, b) < 0;
     }
 
-    vec_resize(&c->data, len);
+    vec_resize(&r.data, len);
     s8 carry = 0;
     for (u32 i = 0; i < len; ++i)
     {
@@ -182,34 +181,34 @@ void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
         if (ec < 0)
         {
-            c->data.data[i] = ec + 10;
+            r.data.data[i] = ec + 10;
             carry = -1;
         }
         else if (ec >= 10)
         {
-            c->data.data[i] = ec - 10;
+            r.data.data[i] = ec - 10;
             carry = 1;
         }
         else
         {
-            c->data.data[i] = ec;
+            r.data.data[i] = ec;
             carry = 0;
         }
     }
     assert(carry >= 0);
     if (carry > 0)
     {
-        vec_push(&c->data, 1);
+        vec_push(&r.data, 1);
     }
-    if (vec_last(&c->data) == 0)
+    while (vec_last(&r.data) == 0)
     {
-        vec_pop(&c->data);
+        vec_pop(&r.data);
     }
     if (outNeg)
     {
-        c->neg = true;
+        r.neg = true;
     }
-    *out = *c;
+    *out = r;
 }
 
 
@@ -230,15 +229,27 @@ void APNUM_intSub(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
 void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
-    APNUM_int _sum = { 0 };
-    APNUM_int* sum = &_sum;
+    APNUM_int sum = { 0 };
     if (APNUM_intAbsCmp(a, b) < 0)
     {
         const APNUM_int* t = a;
         a = b;
         b = t;
     }
-
+    APNUM_int ea = { 0 };
+    vec_dup(&ea.data, &a->data);
+    for (u32 i = 0; i < b->data.length; ++i)
+    {
+        u32 n = b->data.data[i];
+        for (u32 i = 0; i < n; ++i)
+        {
+            APNUM_intAdd(&sum, &sum, &ea);
+        }
+        vec_insert(&ea.data, 0, 0);
+    }
+    APNUM_intFree(&ea);
+    sum.neg = a->neg ? !b->neg : b->neg;
+    *out = sum;
 }
 
 

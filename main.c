@@ -69,6 +69,25 @@ static void test(void)
         APNUM_intFree(&a);
         APNUM_intFree(&b);
     }
+
+    {
+        APNUM_int a = { 0 };
+        APNUM_int b = { 0 };
+        r = APNUM_intFromStr(&a, 10, "-320");
+        assert(r);
+        r = APNUM_intFromStr(&b, 10, "-123");
+        assert(r);
+        APNUM_int c = { 0 };
+        APNUM_intMul(&c, &a, &b);
+
+        char buf[1024];
+        n = APNUM_intToStr(&c, 10, buf, sizeof(buf));
+        printf("%s\n", buf);
+
+        APNUM_intFree(&a);
+        APNUM_intFree(&b);
+        APNUM_intFree(&c);
+    }
 }
 
 
