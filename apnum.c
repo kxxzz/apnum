@@ -256,7 +256,7 @@ void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
 
 
-void APNUM_intDiv(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
+void APNUM_intDiv(APNUM_int* out, APNUM_int* remain, const APNUM_int* a, const APNUM_int* b)
 {
 
 }
