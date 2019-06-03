@@ -26,6 +26,10 @@
 
 
 
+
+
+
+
 void APNUM_intFree(APNUM_int* x)
 {
     vec_free(&x->data);
@@ -41,6 +45,9 @@ APNUM_int APNUM_intDup(const APNUM_int* x)
     a.neg = x->neg;
     return a;
 }
+
+
+
 
 
 
@@ -91,6 +98,9 @@ bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
 
 
 
+
+
+
 u32 APNUM_intToStr(const APNUM_int* x, u32 base, char* strBuf, u32 strBufSize)
 {
     // todo
@@ -119,6 +129,10 @@ u32 APNUM_intToStr(const APNUM_int* x, u32 base, char* strBuf, u32 strBufSize)
     strBuf[len] = 0;
     return len;
 }
+
+
+
+
 
 
 
@@ -165,6 +179,11 @@ static int APNUM_intCmpAbs(const APNUM_int* a, const APNUM_int* b)
 {
     return APNUM_absCmpInt(a->data.data, a->data.length, b->data.data, b->data.length);
 }
+
+
+
+
+
 
 
 
@@ -233,6 +252,11 @@ void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
 
 
+
+
+
+
+
 void APNUM_intSub(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
     APNUM_int negb;
@@ -240,6 +264,12 @@ void APNUM_intSub(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
     negb.neg = !b->neg;
     APNUM_intAdd(out, a, &negb);
 }
+
+
+
+
+
+
 
 
 
@@ -268,6 +298,12 @@ void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
     sum.neg = a->neg ? !b->neg : b->neg;
     *out = sum;
 }
+
+
+
+
+
+
 
 
 
@@ -315,6 +351,8 @@ out:
     *outQ = q;
     *outR = r;
 }
+
+
 
 
 
