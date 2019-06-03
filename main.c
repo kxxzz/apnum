@@ -73,9 +73,9 @@ static void test(void)
     {
         APNUM_int a = { 0 };
         APNUM_int b = { 0 };
-        r = APNUM_intFromStr(&a, 10, "-320");
+        r = APNUM_intFromStr(&a, 10, "-999");
         assert(r);
-        r = APNUM_intFromStr(&b, 10, "-123");
+        r = APNUM_intFromStr(&b, 10, "-1123");
         assert(r);
         APNUM_int c = { 0 };
         APNUM_intMul(&c, &a, &b);
