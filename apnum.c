@@ -162,7 +162,7 @@ static int APNUM_absCmpInt(const u8* a, u32 na, const u8* b, u32 nb)
 
 
 
-static int APNUM_intAbsCmp(const APNUM_int* a, const APNUM_int* b)
+static int APNUM_intCmpAbs(const APNUM_int* a, const APNUM_int* b)
 {
     return APNUM_absCmpInt(a->data.data, a->data.length, b->data.data, b->data.length);
 }
@@ -183,7 +183,7 @@ void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
     }
     else if (a->neg || b->neg)
     {
-        outNeg = APNUM_intAbsCmp(a, b) < 0;
+        outNeg = APNUM_intCmpAbs(a, b) < 0;
     }
 
     vec_resize(&r.data, len);
@@ -249,7 +249,7 @@ void APNUM_intSub(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
     APNUM_int sum = { 0 };
-    if (APNUM_intAbsCmp(a, b) < 0)
+    if (APNUM_intCmpAbs(a, b) < 0)
     {
         const APNUM_int* t = a;
         a = b;
@@ -274,10 +274,10 @@ void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
 
 
-void APNUM_intDiv(APNUM_int* out, APNUM_int* remain, const APNUM_int* a, const APNUM_int* b)
+void APNUM_intDiv(APNUM_int* out, APNUM_int* outRemain, const APNUM_int* a, const APNUM_int* b)
 {
     APNUM_int r = { 0 };
-    int rel = APNUM_intCmp(a, b);
+    int rel = APNUM_intCmpAbs(a, b);
     if (0 == rel)
     {
         vec_push(&r.data, 1);
@@ -287,6 +287,27 @@ void APNUM_intDiv(APNUM_int* out, APNUM_int* remain, const APNUM_int* a, const A
     {
         // todo
         return;
+    }
+    assert(b->data.length > 0);
+    u32 la = b->data.length;
+
+    APNUM_int remain = { 0 };
+    for (;;)
+    {
+        for (;;)
+        {
+            u8* pa = a->data.data + a->data.length - la;
+            rel = APNUM_absCmpInt(pa, la, b->data.data, b->data.length);
+            if (rel < 0)
+            {
+                break;
+            }
+            if (a->data.length - la > 0)
+            {
+                break;
+            }
+            ++la;
+        }
     }
 }
 
@@ -314,7 +335,7 @@ int APNUM_intCmp(const APNUM_int* a, const APNUM_int* b)
     {
         r = -1;
     }
-    return APNUM_intAbsCmp(a, b) * r;
+    return APNUM_intCmpAbs(a, b) * r;
 }
 
 

@@ -88,6 +88,29 @@ static void test(void)
         APNUM_intFree(&b);
         APNUM_intFree(&c);
     }
+
+    {
+        APNUM_int a = { 0 };
+        APNUM_int b = { 0 };
+        r = APNUM_intFromStr(&a, 10, "-88888");
+        assert(r);
+        r = APNUM_intFromStr(&b, 10, "-22");
+        assert(r);
+        APNUM_int c = { 0 };
+        APNUM_int d = { 0 };
+        APNUM_intDiv(&c, &d, &a, &b);
+
+        char buf[1024];
+        n = APNUM_intToStr(&c, 10, buf, sizeof(buf));
+        buf[n] = ' ';
+        n = APNUM_intToStr(&d, 10, buf + n + 1, sizeof(buf) - n - 1);
+        printf("%s\n", buf);
+
+        APNUM_intFree(&a);
+        APNUM_intFree(&b);
+        APNUM_intFree(&c);
+        APNUM_intFree(&d);
+    }
 }
 
 
