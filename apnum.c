@@ -270,7 +270,18 @@ void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
 void APNUM_intDiv(APNUM_int* out, APNUM_int* remain, const APNUM_int* a, const APNUM_int* b)
 {
-
+    APNUM_int r = { 0 };
+    int rel = APNUM_intCmp(a, b);
+    if (0 == rel)
+    {
+        vec_push(&r.data, 1);
+        return;
+    }
+    if (rel < 0)
+    {
+        // todo
+        return;
+    }
 }
 
 
