@@ -129,25 +129,24 @@ u32 APNUM_intToStr(const APNUM_int* x, u32 base, char* strBuf, u32 strBufSize)
 
 
 
-
-static int APNUM_intAbsCmp(const APNUM_int* a, const APNUM_int* b)
+static int APNUM_absCmpInt(const u8* a, u32 na, const u8* b, u32 nb)
 {
-    if (a->data.length > b->data.length)
+    if (na > nb)
     {
         return 1;
     }
-    else if (a->data.length < b->data.length)
+    else if (na < nb)
     {
         return -1;
     }
     else
     {
-        assert(a->data.length == b->data.length);
-        for (u32 i = 0; i < a->data.length; ++i)
+        assert(na == nb);
+        for (u32 i = 0; i < na; ++i)
         {
-            u32 j = a->data.length - 1 - i;
-            s8 ea = a->data.data[j];
-            s8 eb = b->data.data[j];
+            u32 j = na - 1 - i;
+            s8 ea = a[j];
+            s8 eb = b[j];
             if (ea > eb)
             {
                 return 1;
@@ -159,6 +158,13 @@ static int APNUM_intAbsCmp(const APNUM_int* a, const APNUM_int* b)
         }
     }
     return 0;
+}
+
+
+
+static int APNUM_intAbsCmp(const APNUM_int* a, const APNUM_int* b)
+{
+    return APNUM_absCmpInt(a->data.data, a->data.length, b->data.data, b->data.length);
 }
 
 
