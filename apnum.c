@@ -291,6 +291,9 @@ void APNUM_intDiv(APNUM_int* out, APNUM_int* outRemain, const APNUM_int* a, cons
     assert(b->data.length > 0);
     u32 la = b->data.length;
     APNUM_int remain = { 0 };
+    APNUM_int ea = { 0 };
+    APNUM_int eb = { 0 };
+    eb.data = b->data;
     for (;;)
     {
         for (;;)
@@ -299,15 +302,19 @@ void APNUM_intDiv(APNUM_int* out, APNUM_int* outRemain, const APNUM_int* a, cons
             rel = APNUM_absCmpInt(pa, la, b->data.data, b->data.length);
             if (rel < 0)
             {
-                break;
+                ++la;
+                continue;
             }
             if (a->data.length - la > 0)
             {
                 break;
             }
-            ++la;
+            vec_resize(&ea.data, 0);
+            vec_pusharr(&ea.data, pa, la);
+            APNUM_intSub(&ea, &ea, &eb);
         }
     }
+    APNUM_intFree(&ea);
 }
 
 
