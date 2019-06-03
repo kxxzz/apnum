@@ -83,7 +83,7 @@ u32 APNUM_intToStr(const APNUM_int* x, u32 base, char* strBuf, u32 strBufSize)
 {
     // todo
     assert(10 == base);
-    if ((1 == x->data.length) && (0 == x->data.data[0]))
+    if (0 == x->data.length)
     {
         strBuf[0] = '0';
         strBuf[1] = 0;

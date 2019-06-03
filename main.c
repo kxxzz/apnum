@@ -59,7 +59,7 @@ static void test(void)
     {
         APNUM_int a = { 0 };
         APNUM_int b = { 0 };
-        r = APNUM_intFromStr(&a, 10, "12");
+        r = APNUM_intFromStr(&a, 10, "0");
         assert(r);
         r = APNUM_intFromStr(&b, 10, "-12");
         assert(r);
