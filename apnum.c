@@ -33,6 +33,19 @@ void APNUM_intFree(APNUM_int* x)
 
 
 
+
+APNUM_int APNUM_intDup(const APNUM_int* x)
+{
+    APNUM_int a = { 0 };
+    vec_dup(&a.data, &x->data);
+    a.neg = x->neg;
+    return a;
+}
+
+
+
+
+
 bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
 {
     // todo
@@ -236,8 +249,7 @@ void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
         a = b;
         b = t;
     }
-    APNUM_int ea = { 0 };
-    vec_dup(&ea.data, &a->data);
+    APNUM_int ea = APNUM_intDup(a);
     for (u32 i = 0; i < b->data.length; ++i)
     {
         u32 n = b->data.data[i];

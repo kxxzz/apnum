@@ -17,6 +17,8 @@ typedef struct APNUM_int
 
 void APNUM_intFree(APNUM_int* x);
 
+APNUM_int APNUM_intDup(const APNUM_int* x);
+
 bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str);
 
 u32 APNUM_intToStr(const APNUM_int* x, u32 base, char* strBuf, u32 strBufSize);
