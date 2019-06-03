@@ -290,7 +290,6 @@ void APNUM_intDiv(APNUM_int* out, APNUM_int* outRemain, const APNUM_int* a, cons
     }
     assert(b->data.length > 0);
     u32 la = b->data.length;
-
     APNUM_int remain = { 0 };
     for (;;)
     {
