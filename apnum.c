@@ -54,7 +54,6 @@ bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
     u32 len = (u32)strlen(str);
     if ((1 == len) && ('0' == str[0]))
     {
-        vec_push(&x.data, 0);
         *out = x;
         return true;
     }
@@ -274,48 +273,47 @@ void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
 
 
-void APNUM_intDiv(APNUM_int* out, APNUM_int* outRemain, const APNUM_int* a, const APNUM_int* b)
+void APNUM_intDiv(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* a, const APNUM_int* b)
 {
+    APNUM_int q = { 0 };
     APNUM_int r = { 0 };
+    APNUM_int eb = { b->data };
     int rel = APNUM_intCmpAbs(a, b);
     if (0 == rel)
     {
-        vec_push(&r.data, 1);
-        return;
+        vec_push(&q.data, 1);
+        goto out;
     }
     if (rel < 0)
     {
-        // todo
-        return;
+        r = APNUM_intDup(a);
+        goto out;
     }
     assert(b->data.length > 0);
-    APNUM_int remain = { 0 };
-    APNUM_int ea = { 0 };
-    APNUM_int eb = { 0 };
-    eb.data = b->data;
     for (u32 i = 0; i < a->data.length; ++i)
     {
         u32 j = a->data.length - 1 - i;
-        vec_insert(&ea.data, 0, a->data.data[j]);
+        vec_insert(&r.data, 0, a->data.data[j]);
         u32 er = 0;
         for (;; ++er)
         {
-            rel = APNUM_intCmpAbs(&ea, b);
+            rel = APNUM_intCmpAbs(&r, b);
             if (rel < 0)
             {
                 break;
             }
-            APNUM_intSub(&ea, &ea, &eb);
+            APNUM_intSub(&r, &r, &eb);
         }
-        if ((r.data.length > 0) || er)
+        if ((q.data.length > 0) || er)
         {
-            vec_insert(&r.data, 0, er);
+            vec_insert(&q.data, 0, er);
         }
     }
-    r.neg = a->neg ? !b->neg : b->neg;
-    ea.neg = a->neg;
-    *out = r;
-    *outRemain = ea;
+out:
+    q.neg = a->neg ? !b->neg : b->neg;
+    r.neg = a->neg;
+    *outQ = q;
+    *outR = r;
 }
 
 
