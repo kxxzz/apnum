@@ -155,6 +155,8 @@ static int APNUM_intAbsCmp(const APNUM_int* a, const APNUM_int* b)
 
 void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
+    APNUM_int _c = { 0 };
+    APNUM_int* c = &_c;
     u32 len = max(a->data.length, b->data.length);
     bool outNeg;
     if (a->neg && b->neg)
@@ -166,7 +168,7 @@ void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
         outNeg = APNUM_intAbsCmp(a, b) < 0;
     }
 
-    vec_resize(&out->data, len);
+    vec_resize(&c->data, len);
     s8 carry = 0;
     for (u32 i = 0; i < len; ++i)
     {
@@ -180,33 +182,34 @@ void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
         if (ec < 0)
         {
-            out->data.data[i] = ec + 10;
+            c->data.data[i] = ec + 10;
             carry = -1;
         }
         else if (ec >= 10)
         {
-            out->data.data[i] = ec - 10;
+            c->data.data[i] = ec - 10;
             carry = 1;
         }
         else
         {
-            out->data.data[i] = ec;
+            c->data.data[i] = ec;
             carry = 0;
         }
     }
     assert(carry >= 0);
     if (carry > 0)
     {
-        vec_push(&out->data, 1);
+        vec_push(&c->data, 1);
     }
-    if (vec_last(&out->data) == 0)
+    if (vec_last(&c->data) == 0)
     {
-        vec_pop(&out->data);
+        vec_pop(&c->data);
     }
     if (outNeg)
     {
-        out->neg = true;
+        c->neg = true;
     }
+    *out = *c;
 }
 
 
@@ -227,6 +230,14 @@ void APNUM_intSub(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
 void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
+    APNUM_int _sum = { 0 };
+    APNUM_int* sum = &_sum;
+    if (APNUM_intAbsCmp(a, b) < 0)
+    {
+        const APNUM_int* t = a;
+        a = b;
+        b = t;
+    }
 
 }
 
