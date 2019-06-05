@@ -33,8 +33,8 @@
 
 
 
-typedef u32 APNUM_Digit;
-typedef s64 APNUM_Wigit;
+typedef u8 APNUM_Digit;
+typedef s16 APNUM_Wigit;
 typedef vec_t(APNUM_Digit) APNUM_DigitVec;
 
 
@@ -184,7 +184,10 @@ u32 APNUM_intToStr(const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize)
     {
         APNUM_intDiv(q1, r, q, ibase);
         APNUM_intSwap(q, q1);
-        vec_push(&buf, r->digits.data[0] + '0');
+        if (r->digits.length > 0)
+        {
+            vec_push(&buf, r->digits.data[0] + '0');
+        }
     } while (q->digits.length > 0);
 
     APNUM_intFree(ibase);
@@ -289,24 +292,29 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
         outNeg = APNUM_intCmpAbs(a, b) < 0;
     }
     vec_resize(&a->digits, len);
+
+    s8 signA = a->neg ? (outNeg ? 1 : -1) : (outNeg ? -1 : 1);
+    s8 signB = b->neg ? (outNeg ? 1 : -1) : (outNeg ? -1 : 1);
+    APNUM_Wigit digitMax = UINT8_MAX;
+
     APNUM_Wigit ec = 0;
     for (u32 i = 0; i < len; ++i)
     {
         APNUM_Wigit ea = (i < alen) ? a->digits.data[i] : 0;
         APNUM_Wigit eb = (i < blen) ? b->digits.data[i] : 0;
-        ea = a->neg ? (outNeg ? ea : -ea) : (outNeg ? -ea : ea);
-        eb = b->neg ? (outNeg ? eb : -eb) : (outNeg ? -eb : eb);
+        ea = ea * signA;
+        eb = eb * signB;
         ec = ec + ea + eb;
 
         if (ec < 0)
         {
-            ec += 0xff;
+            ec += digitMax;
             a->digits.data[i] = (APNUM_Digit)ec;
             ec = -1;
         }
-        else if (ec >= 0xff)
+        else if (ec >= digitMax)
         {
-            ec -= 0xff;
+            ec -= digitMax;
             a->digits.data[i] = (APNUM_Digit)ec;
             ec = 1;
         }

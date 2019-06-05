@@ -72,10 +72,10 @@ static void test(void)
 
     {
         APNUM_int* a = APNUM_intZero();
-        r = APNUM_intFromStr(a, 10, "-22");
+        r = APNUM_intFromStr(a, 10, "-22999999999999999999999999999999999999999999999999999999999999999999999999999999");
         assert(r);
         APNUM_int* b = APNUM_intZero();
-        r = APNUM_intFromStr(b, 10, "-1123");
+        r = APNUM_intFromStr(b, 10, "-11239999999999999999999999999999999999999999999999999999999999999999999999999999");
         assert(r);
         APNUM_int* c = APNUM_intZero(); 
         APNUM_intMul(c, a, b);
@@ -91,10 +91,10 @@ static void test(void)
 
     {
         APNUM_int* a = APNUM_intZero();
-        r = APNUM_intFromStr(a, 10, "246247");
+        r = APNUM_intFromStr(a, 10, "2222222222222222222222222222222222222222222222");
         assert(r);
         APNUM_int* b = APNUM_intZero();
-        r = APNUM_intFromStr(b, 10, "-123");
+        r = APNUM_intFromStr(b, 10, "1239999999999999999999999999999999999999999");
         assert(r);
         APNUM_int* c = APNUM_intZero();
         APNUM_int* d = APNUM_intZero();
