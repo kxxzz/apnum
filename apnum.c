@@ -112,13 +112,32 @@ bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
             break;
         }
     }
-    u32 dataSize = len - sp;
-    vec_resize(&x->digits, dataSize);
-    for (u32 i = sp; i < len; ++i)
+    APNUM_int* e = APNUM_intZero();
+    APNUM_int* x1 = APNUM_intZero();
+
+    e->neg = x->neg;
+    vec_resize(&e->digits, 0);
+    vec_push(&e->digits, str[sp] - '0');
+    APNUM_intAddInP(x, e);
+
+    for (u32 i = sp + 1; i < len; ++i)
     {
-        u32 j = dataSize - 1 - (i - sp);
-        x->digits.data[j] = str[i] - '0';
+        e->neg = false;
+        vec_resize(&e->digits, 0);
+        vec_push(&e->digits, 0);
+        vec_push(&e->digits, 1);
+        APNUM_intMul(x1, x, e);
+        APNUM_int t = *x1;
+        *x1 = *x;
+        *x = t;
+
+        e->neg = x->neg;
+        vec_resize(&e->digits, 0);
+        vec_push(&e->digits, str[i] - '0');
+        APNUM_intAddInP(x, e);
     }
+    APNUM_intFree(x1);
+    APNUM_intFree(e);
     return true;
 }
 
