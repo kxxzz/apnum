@@ -217,13 +217,13 @@ static int APNUM_intCmpAbs(const APNUM_int* a, const APNUM_int* b)
 
 
 
-void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
+
+
+void APNUM_intAddIP(APNUM_int* a, const APNUM_int* b)
 {
-    assert(out != a);
-    assert(out != b);
-    APNUM_int* r = out;
-    vec_resize(&r->digits, 0);
-    u32 len = max(a->digits.length, b->digits.length);
+    u32 alen = a->digits.length;
+    u32 blen = b->digits.length;
+    u32 len = max(alen, blen);
     bool outNeg = false;
     if (a->neg && b->neg)
     {
@@ -233,13 +233,12 @@ void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
     {
         outNeg = APNUM_intCmpAbs(a, b) < 0;
     }
-
-    vec_resize(&r->digits, len);
+    vec_resize(&a->digits, len);
     APNUM_Wigit ec = 0;
     for (u32 i = 0; i < len; ++i)
     {
-        APNUM_Wigit ea = (i < a->digits.length) ? a->digits.data[i] : 0;
-        APNUM_Wigit eb = (i < b->digits.length) ? b->digits.data[i] : 0;
+        APNUM_Wigit ea = (i < alen) ? a->digits.data[i] : 0;
+        APNUM_Wigit eb = (i < blen) ? b->digits.data[i] : 0;
         ea = a->neg ? -ea : ea;
         eb = b->neg ? -eb : eb;
         ea = outNeg ? -ea : ea;
@@ -249,34 +248,44 @@ void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
         if (ec < 0)
         {
             ec += 10;
-            r->digits.data[i] = (APNUM_Digit)ec;
+            a->digits.data[i] = (APNUM_Digit)ec;
             ec = -1;
         }
         else if (ec >= 10)
         {
             ec -= 10;
-            r->digits.data[i] = (APNUM_Digit)ec;
+            a->digits.data[i] = (APNUM_Digit)ec;
             ec = 1;
         }
         else
         {
-            r->digits.data[i] = (APNUM_Digit)ec;
+            a->digits.data[i] = (APNUM_Digit)ec;
             ec = 0;
         }
     }
     assert(ec >= 0);
     if (ec > 0)
     {
-        vec_push(&r->digits, 1);
+        vec_push(&a->digits, 1);
     }
-    while (r->digits.length && (vec_last(&r->digits) == 0))
+    while (a->digits.length && (vec_last(&a->digits) == 0))
     {
-        vec_pop(&r->digits);
+        vec_pop(&a->digits);
     }
     if (outNeg)
     {
-        r->neg = true;
+        a->neg = true;
     }
+}
+
+
+void APNUM_intSubIP(APNUM_int* a, const APNUM_int* b)
+{
+    APNUM_int t = { 0 };
+    APNUM_int* negb = &t;
+    negb->digits = b->digits;
+    negb->neg = !b->neg;
+    APNUM_intAddIP(a, negb);
 }
 
 
@@ -288,15 +297,24 @@ void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
 
 
+
+
+
+void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
+{
+    assert(out != a);
+    assert(out != b);
+    APNUM_intDup(out, a);
+    APNUM_intAddIP(out, b);
+}
+
+
 void APNUM_intSub(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
     assert(out != a);
     assert(out != b);
-    APNUM_int t = { 0 };
-    APNUM_int* negb = &t;
-    negb->digits = b->digits;
-    negb->neg = !b->neg;
-    APNUM_intAdd(out, a, negb);
+    APNUM_intDup(out, a);
+    APNUM_intSubIP(out, b);
 }
 
 
@@ -323,20 +341,15 @@ void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
     }
     APNUM_int* ea = APNUM_intZero();
     APNUM_intDup(ea, a);
-    APNUM_int* sum1 = APNUM_intZero();
     for (u32 i = 0; i < b->digits.length; ++i)
     {
         u32 n = b->digits.data[i];
         for (u32 i = 0; i < n; ++i)
         {
-            APNUM_intAdd(sum1, sum, ea);
-            APNUM_int t = *sum;
-            *sum = *sum1;
-            *sum1 = t;
+            APNUM_intAddIP(sum, ea);
         }
         vec_insert(&ea->digits, 0, 0);
     }
-    APNUM_intFree(sum1);
     APNUM_intFree(ea);
     sum->neg = a->neg ? !b->neg : b->neg;
 }
@@ -361,7 +374,6 @@ void APNUM_intDiv(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* a, const AP
     APNUM_int* r = outR;
     vec_resize(&q->digits, 0);
     vec_resize(&r->digits, 0);
-    APNUM_int* r1 = NULL;
     APNUM_int eb = { b->digits };
     int rel = APNUM_intCmpAbs(a, b);
     if (0 == rel)
@@ -374,7 +386,6 @@ void APNUM_intDiv(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* a, const AP
         APNUM_intDup(r, a);
         goto out;
     }
-    r1 = APNUM_intZero();
     assert(b->digits.length > 0);
     for (u32 i = 0; i < a->digits.length; ++i)
     {
@@ -388,17 +399,13 @@ void APNUM_intDiv(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* a, const AP
             {
                 break;
             }
-            APNUM_intSub(r1, r, &eb);
-            APNUM_int t = *r;
-            *r = *r1;
-            *r1 = t;
+            APNUM_intSubIP(r, &eb);
         }
         if ((q->digits.length > 0) || er)
         {
             vec_insert(&q->digits, 0, er);
         }
     }
-    APNUM_intFree(r1);
 out:
     q->neg = a->neg ? !b->neg : b->neg;
     r->neg = a->neg;
