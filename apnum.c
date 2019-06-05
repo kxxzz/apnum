@@ -177,8 +177,7 @@ u32 APNUM_intToStr(const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize)
     APNUM_int* q1 = APNUM_intZero();
     APNUM_int* r = APNUM_intZero();
     APNUM_int* ibase = APNUM_intZero();
-    vec_push(&ibase->digits, 0);
-    vec_push(&ibase->digits, 1);
+    vec_push(&ibase->digits, base);
 
     vec_char buf = { 0 };
     do 
@@ -301,13 +300,13 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
 
         if (ec < 0)
         {
-            ec += 10;
+            ec += 0xff;
             a->digits.data[i] = (APNUM_Digit)ec;
             ec = -1;
         }
-        else if (ec >= 10)
+        else if (ec >= 0xff)
         {
-            ec -= 10;
+            ec -= 0xff;
             a->digits.data[i] = (APNUM_Digit)ec;
             ec = 1;
         }
