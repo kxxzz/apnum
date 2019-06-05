@@ -79,6 +79,18 @@ APNUM_int* APNUM_intZero(void)
 
 
 
+static void APNUM_intSwap(APNUM_int* a, APNUM_int* b)
+{
+    APNUM_int t = *a;
+    *a = *b;
+    *b = t;
+}
+
+
+
+
+
+
 bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
 {
     assert(10 == base);
@@ -128,9 +140,7 @@ bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
         vec_resize(&b->digits, 0);
         vec_push(&b->digits, base);
         APNUM_intMul(a1, a, b);
-        APNUM_int t = *a1;
-        *a1 = *a;
-        *a = t;
+        APNUM_intSwap(a, a1);
 
         b->neg = a->neg;
         vec_resize(&b->digits, 0);
@@ -149,32 +159,57 @@ bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
 
 
 
-u32 APNUM_intToStr(const APNUM_int* x, u32 base, char* strBuf, u32 strBufSize)
+u32 APNUM_intToStr(const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize)
 {
-    // todo
     assert(10 == base);
-    if (0 == x->digits.length)
+    if (0 == a->digits.length)
     {
         strBuf[0] = '0';
         strBuf[1] = 0;
         return 1;
     }
-    u32 sp = x->neg ? 1 : 0;
-    u32 len = x->digits.length + sp;
-    if (strBufSize <= len)
+    u32 sp = a->neg ? 1 : 0;
+
+    APNUM_int* q = APNUM_intZero();
+    APNUM_intDup(q, a);
+    q->neg = false;
+
+    APNUM_int* q1 = APNUM_intZero();
+    APNUM_int* r = APNUM_intZero();
+    APNUM_int* ibase = APNUM_intZero();
+    vec_push(&ibase->digits, 0);
+    vec_push(&ibase->digits, 1);
+
+    vec_char buf = { 0 };
+    do 
     {
-        return len;
+        APNUM_intDiv(q1, r, q, ibase);
+        APNUM_intSwap(q, q1);
+        vec_push(&buf, r->digits.data[0] + '0');
+    } while (q->digits.length > 0);
+
+    APNUM_intFree(ibase);
+    APNUM_intFree(r);
+    APNUM_intFree(q1);
+    APNUM_intFree(q);
+
+    u32 len = sp + buf.length;
+    if (len >= strBufSize)
+    {
+        goto out;
     }
-    if (x->neg)
+    if (a->neg)
     {
         strBuf[0] = '-';
     }
     for (u32 i = sp; i < len; ++i)
     {
-        u32 j = x->digits.length - 1 - (i - sp);
-        strBuf[i] = x->digits.data[j] + '0';
+        u32 j = len - 1 - i;
+        strBuf[i] = buf.data[j];
     }
     strBuf[len] = 0;
+out:
+    vec_free(&buf);
     return len;
 }
 
