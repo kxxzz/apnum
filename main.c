@@ -72,7 +72,7 @@ static void test(void)
 
     {
         APNUM_int* a = APNUM_intZero();
-        r = APNUM_intFromStr(a, 10, "-222");
+        r = APNUM_intFromStr(a, 10, "-22");
         assert(r);
         APNUM_int* b = APNUM_intZero();
         r = APNUM_intFromStr(b, 10, "-1123");
