@@ -81,14 +81,15 @@ APNUM_int* APNUM_intZero(void)
 
 bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
 {
-    APNUM_int* x = out;
-    vec_resize(&x->digits, 0);
-    // todo
     assert(10 == base);
+
+    APNUM_int* a = out;
+    vec_resize(&a->digits, 0);
+
     u32 len = (u32)strlen(str);
     if ((1 == len) && ('0' == str[0]))
     {
-        x->neg = false;
+        a->neg = false;
         return true;
     }
     bool neg = '-' == str[0];
@@ -100,7 +101,7 @@ bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
             return false;
         }
     }
-    x->neg = neg;
+    a->neg = neg;
     for (u32 i = sp; i < len; ++i)
     {
         if ('0' == str[i])
@@ -112,31 +113,33 @@ bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
             break;
         }
     }
-    APNUM_int* e = APNUM_intZero();
-    APNUM_int* x1 = APNUM_intZero();
 
-    e->neg = x->neg;
-    vec_resize(&e->digits, 0);
-    vec_push(&e->digits, str[sp] - '0');
-    APNUM_intAddInP(x, e);
+    APNUM_int* b = APNUM_intZero();
+    APNUM_int* a1 = APNUM_intZero();
+
+    b->neg = a->neg;
+    vec_resize(&b->digits, 0);
+    vec_push(&b->digits, str[sp] - '0');
+    APNUM_intAddInP(a, b);
 
     for (u32 i = sp + 1; i < len; ++i)
     {
-        e->neg = false;
-        vec_resize(&e->digits, 0);
-        vec_push(&e->digits, 10);
-        APNUM_intMul(x1, x, e);
-        APNUM_int t = *x1;
-        *x1 = *x;
-        *x = t;
+        b->neg = false;
+        vec_resize(&b->digits, 0);
+        vec_push(&b->digits, base);
+        APNUM_intMul(a1, a, b);
+        APNUM_int t = *a1;
+        *a1 = *a;
+        *a = t;
 
-        e->neg = x->neg;
-        vec_resize(&e->digits, 0);
-        vec_push(&e->digits, str[i] - '0');
-        APNUM_intAddInP(x, e);
+        b->neg = a->neg;
+        vec_resize(&b->digits, 0);
+        vec_push(&b->digits, str[i] - '0');
+        APNUM_intAddInP(a, b);
     }
-    APNUM_intFree(x1);
-    APNUM_intFree(e);
+
+    APNUM_intFree(a1);
+    APNUM_intFree(b);
     return true;
 }
 
