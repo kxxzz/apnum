@@ -295,7 +295,7 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
 
     s8 signA = a->neg ? (outNeg ? 1 : -1) : (outNeg ? -1 : 1);
     s8 signB = b->neg ? (outNeg ? 1 : -1) : (outNeg ? -1 : 1);
-    APNUM_Wigit digitMax = UINT8_MAX;
+    APNUM_Wigit digitMax = 0xfa;// UINT8_MAX;
 
     APNUM_Wigit ec = 0;
     for (u32 i = 0; i < len; ++i)
@@ -304,7 +304,7 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
         APNUM_Wigit eb = (i < blen) ? b->digits.data[i] : 0;
         ea = ea * signA;
         eb = eb * signB;
-        ec = ec + ea + eb;
+        ec = ea + eb + ec;
 
         if (ec < 0)
         {
