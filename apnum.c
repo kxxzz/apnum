@@ -124,8 +124,7 @@ bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
     {
         e->neg = false;
         vec_resize(&e->digits, 0);
-        vec_push(&e->digits, 0);
-        vec_push(&e->digits, 1);
+        vec_push(&e->digits, 10);
         APNUM_intMul(x1, x, e);
         APNUM_int t = *x1;
         *x1 = *x;
