@@ -239,10 +239,8 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
     {
         APNUM_Wigit ea = (i < alen) ? a->digits.data[i] : 0;
         APNUM_Wigit eb = (i < blen) ? b->digits.data[i] : 0;
-        ea = a->neg ? -ea : ea;
-        eb = b->neg ? -eb : eb;
-        ea = outNeg ? -ea : ea;
-        eb = outNeg ? -eb : eb;
+        ea = a->neg ? (outNeg ? ea : -ea) : (outNeg ? -ea : ea);
+        eb = b->neg ? (outNeg ? eb : -eb) : (outNeg ? -eb : eb);
         ec = ec + ea + eb;
 
         if (ec < 0)
