@@ -28,88 +28,88 @@ static void test(void)
     u32 n;
 
     {
-        APNUM_int a = { 0 };
-        r = APNUM_intFromStr(&a, 10, "12345000");
-        assert(r);
+        APNUM_int* a = APNUM_intZero();
+        APNUM_intFromStr(a, 10, "12345000");
+        assert(a);
         char buf[1024];
-        n = APNUM_intToStr(&a, 10, buf, sizeof(buf));
+        n = APNUM_intToStr(a, 10, buf, sizeof(buf));
         printf("%s\n", buf);
-        APNUM_intFree(&a);
+        APNUM_intFree(a);
     }
 
     {
-        APNUM_int a = { 0 };
-        APNUM_int b = { 0 };
-        r = APNUM_intFromStr(&a, 10, "56789");
+        APNUM_int* a = APNUM_intZero();
+        r = APNUM_intFromStr(a, 10, "56789");
         assert(r);
-        r = APNUM_intFromStr(&b, 10, "92345");
+        APNUM_int* b = APNUM_intZero();
+        r = APNUM_intFromStr(b, 10, "92345");
         assert(r);
-        APNUM_int c = { 0 };
-        APNUM_intSub(&c, &a, &b);
+        APNUM_int* c = APNUM_intZero(); 
+        APNUM_intSub(c, a, b);
 
         char buf[1024];
-        n = APNUM_intToStr(&c, 10, buf, sizeof(buf));
+        n = APNUM_intToStr(c, 10, buf, sizeof(buf));
         printf("%s\n", buf);
 
-        APNUM_intFree(&a);
-        APNUM_intFree(&b);
-        APNUM_intFree(&c);
+        APNUM_intFree(a);
+        APNUM_intFree(b);
+        APNUM_intFree(c);
     }
 
     {
-        APNUM_int a = { 0 };
-        APNUM_int b = { 0 };
-        r = APNUM_intFromStr(&a, 10, "0");
+        APNUM_int* a = APNUM_intZero();
+        r = APNUM_intFromStr(a, 10, "0");
         assert(r);
-        r = APNUM_intFromStr(&b, 10, "-12");
-        assert(r);
-        int c = APNUM_intCmp(&a, &b);
+        APNUM_int* b = APNUM_intZero();
+        r = APNUM_intFromStr(b, 10, "-12");
+        assert(b);
+        int c = APNUM_intCmp(a, b);
         assert(1 == c);
 
-        APNUM_intFree(&a);
-        APNUM_intFree(&b);
+        APNUM_intFree(a);
+        APNUM_intFree(b);
     }
 
     {
-        APNUM_int a = { 0 };
-        APNUM_int b = { 0 };
-        r = APNUM_intFromStr(&a, 10, "-999");
+        APNUM_int* a = APNUM_intZero();
+        r = APNUM_intFromStr(a, 10, "-999");
         assert(r);
-        r = APNUM_intFromStr(&b, 10, "-1123");
+        APNUM_int* b = APNUM_intZero();
+        r = APNUM_intFromStr(b, 10, "-1123");
         assert(r);
-        APNUM_int c = { 0 };
-        APNUM_intMul(&c, &a, &b);
+        APNUM_int* c = APNUM_intZero(); 
+        APNUM_intMul(c, a, b);
 
         char buf[1024];
-        n = APNUM_intToStr(&c, 10, buf, sizeof(buf));
+        n = APNUM_intToStr(c, 10, buf, sizeof(buf));
         printf("%s\n", buf);
 
-        APNUM_intFree(&a);
-        APNUM_intFree(&b);
-        APNUM_intFree(&c);
+        APNUM_intFree(a);
+        APNUM_intFree(b);
+        APNUM_intFree(c);
     }
 
     {
-        APNUM_int a = { 0 };
-        APNUM_int b = { 0 };
-        r = APNUM_intFromStr(&a, 10, "246247");
+        APNUM_int* a = APNUM_intZero();
+        r = APNUM_intFromStr(a, 10, "246247");
         assert(r);
-        r = APNUM_intFromStr(&b, 10, "-123");
+        APNUM_int* b = APNUM_intZero();
+        r = APNUM_intFromStr(b, 10, "-123");
         assert(r);
-        APNUM_int c = { 0 };
-        APNUM_int d = { 0 };
-        APNUM_intDiv(&c, &d, &a, &b);
+        APNUM_int* c = APNUM_intZero();
+        APNUM_int* d = APNUM_intZero();
+        APNUM_intDiv(c, d, a, b);
 
         char buf[1024];
-        n = APNUM_intToStr(&c, 10, buf, sizeof(buf));
+        n = APNUM_intToStr(c, 10, buf, sizeof(buf));
         buf[n] = ' ';
-        n = APNUM_intToStr(&d, 10, buf + n + 1, sizeof(buf) - n - 1);
+        n = APNUM_intToStr(d, 10, buf + n + 1, sizeof(buf) - n - 1);
         printf("%s\n", buf);
 
-        APNUM_intFree(&a);
-        APNUM_intFree(&b);
-        APNUM_intFree(&c);
-        APNUM_intFree(&d);
+        APNUM_intFree(a);
+        APNUM_intFree(b);
+        APNUM_intFree(c);
+        APNUM_intFree(d);
     }
 }
 
