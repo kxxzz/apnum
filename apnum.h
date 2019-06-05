@@ -8,9 +8,13 @@
 
 
 
+typedef u32 APNUM_Digit;
+typedef vec_t(APNUM_Digit) APNUM_DigitVec;
+
+
 typedef struct APNUM_int
 {
-    vec_u8 data;
+    APNUM_DigitVec data;
     bool neg;
 } APNUM_int;
 

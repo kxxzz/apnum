@@ -28,8 +28,6 @@
 
 
 
-
-
 void APNUM_intFree(APNUM_int* x)
 {
     vec_free(&x->data);
@@ -142,7 +140,7 @@ u32 APNUM_intToStr(const APNUM_int* x, u32 base, char* strBuf, u32 strBufSize)
 
 
 
-static int APNUM_absCmpInt(const u8* a, u32 na, const u8* b, u32 nb)
+static int APNUM_absCmpInt(const APNUM_Digit* a, u32 na, const APNUM_Digit* b, u32 nb)
 {
     if (na > nb)
     {
