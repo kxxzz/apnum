@@ -370,35 +370,36 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
     s8 signA = a->neg ? (outNeg ? 1 : -1) : (outNeg ? -1 : 1);
     s8 signB = b->neg ? (outNeg ? 1 : -1) : (outNeg ? -1 : 1);
 
-    APNUM_Wigit ec = 0;
+    APNUM_Wigit e = 0;
+    s8 carry = 0;
     for (u32 i = 0; i < len; ++i)
     {
         APNUM_Wigit ea = (i < alen) ? a->digits.data[i] : 0;
         APNUM_Wigit eb = (i < blen) ? b->digits.data[i] : 0;
         ea = ea * signA;
         eb = eb * signB;
-        ec = ea + eb + ec;
+        e = ea + eb + carry;
 
-        if (ec < 0)
+        if (e < 0)
         {
-            ec += APNUM_Digit_MAX;
-            a->digits.data[i] = (APNUM_Digit)ec;
-            ec = -1;
+            e += APNUM_Digit_MAX;
+            carry = -1;
         }
-        else if (ec >= APNUM_Digit_MAX)
+        else
+        if (e >= APNUM_Digit_MAX)
         {
-            ec -= APNUM_Digit_MAX;
-            a->digits.data[i] = (APNUM_Digit)ec;
-            ec = 1;
+            e -= APNUM_Digit_MAX;
+            carry = 1;
         }
         else
         {
-            a->digits.data[i] = (APNUM_Digit)ec;
-            ec = 0;
+            carry = 0;
         }
+        assert(e < APNUM_Digit_MAX);
+        a->digits.data[i] = (APNUM_Digit)e;
     }
-    assert(ec >= 0);
-    if (ec > 0)
+    assert(carry >= 0);
+    if (carry > 0)
     {
         vec_push(&a->digits, 1);
     }
