@@ -381,11 +381,6 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
 
         if (ec < 0)
         {
-            if (i == len - 1)
-            {
-                assert(false);
-            }
-
             ec += APNUM_Digit_MAX;
             a->digits.data[i] = (APNUM_Digit)ec;
             ec = -1;
