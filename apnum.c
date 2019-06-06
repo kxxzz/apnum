@@ -41,7 +41,7 @@ typedef vec_t(APNUM_Digit) APNUM_DigitVec;
 
 enum
 {
-    APNUM_Digit_MAX = 16,
+    APNUM_Digit_MAX = 64,
 };
 
 static_assert(APNUM_Digit_MAX <= UINT8_MAX, "");
@@ -50,7 +50,7 @@ static_assert(APNUM_Digit_MAX <= UINT8_MAX, "");
 
 typedef struct APNUM_int
 {
-    APNUM_DigitVec digits;
+    APNUM_DigitVec digits[1];
     bool neg;
 } APNUM_int;
 
@@ -61,7 +61,7 @@ typedef struct APNUM_int
 
 void APNUM_intFree(APNUM_int* x)
 {
-    vec_free(&x->digits);
+    vec_free(x->digits);
     free(x);
 }
 
@@ -70,7 +70,7 @@ void APNUM_intFree(APNUM_int* x)
 
 void APNUM_intDup(APNUM_int* out, const APNUM_int* x)
 {
-    vec_dup(&out->digits, &x->digits);
+    vec_dup(out->digits, x->digits);
     out->neg = x->neg;
 }
 
@@ -101,11 +101,11 @@ static void APNUM_intSwap(APNUM_int* a, APNUM_int* b)
 
 static void APNUM_intDigitsByU32(APNUM_int* a, u32 x)
 {
-    vec_resize(&a->digits, 0);
+    vec_resize(a->digits, 0);
     while (x)
     {
         u32 r = x % APNUM_Digit_MAX;
-        vec_push(&a->digits, r);
+        vec_push(a->digits, r);
         x /= APNUM_Digit_MAX;
     }
 }
@@ -116,9 +116,9 @@ static void APNUM_intDigitsByU32(APNUM_int* a, u32 x)
 static void APNUM_intDightsInsertAt0(APNUM_int* a, u32 x)
 {
     assert(x < APNUM_Digit_MAX);
-    if ((a->digits.length > 0) || x)
+    if ((a->digits->length > 0) || x)
     {
-        vec_insert(&a->digits, 0, x);
+        vec_insert(a->digits, 0, x);
     }
 }
 
@@ -163,7 +163,7 @@ static int APNUM_absCmpInt(const APNUM_Digit* a, u32 na, const APNUM_Digit* b, u
 
 static int APNUM_intCmpAbs(const APNUM_int* a, const APNUM_int* b)
 {
-    return APNUM_absCmpInt(a->digits.data, a->digits.length, b->digits.data, b->digits.length);
+    return APNUM_absCmpInt(a->digits->data, a->digits->length, b->digits->data, b->digits->length);
 }
 
 
@@ -172,9 +172,9 @@ static int APNUM_intCmpAbs(const APNUM_int* a, const APNUM_int* b)
 
 static void APNUM_intClearZeros(APNUM_int* a)
 {
-    while (a->digits.length && (vec_last(&a->digits) == 0))
+    while (a->digits->length && (vec_last(a->digits) == 0))
     {
-        vec_pop(&a->digits);
+        vec_pop(a->digits);
     }
 }
 
@@ -210,7 +210,7 @@ bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
     assert(10 == base);
 
     APNUM_int* a = out;
-    vec_resize(&a->digits, 0);
+    vec_resize(a->digits, 0);
 
     u32 len = (u32)strlen(str);
     if ((1 == len) && ('0' == str[0]))
@@ -272,7 +272,7 @@ bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
 
 u32 APNUM_intToStr(const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize)
 {
-    if (0 == a->digits.length)
+    if (0 == a->digits->length)
     {
         strBuf[0] = '0';
         strBuf[1] = 0;
@@ -289,31 +289,31 @@ u32 APNUM_intToStr(const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize)
     APNUM_int* ibase = APNUM_intZero();
     APNUM_intDigitsByU32(ibase, base);
 
-    vec_char buf = { 0 };
+    vec_char buf[1] = { 0 };
     do 
     {
         APNUM_intDiv(q1, r, q, ibase);
         APNUM_intSwap(q, q1);
         char c = 0;
-        if (r->digits.length > 0)
+        if (r->digits->length > 0)
         {
-            c += r->digits.data[r->digits.length - 1];
-            for (u32 i = 1; i < r->digits.length; ++i)
+            c += r->digits->data[r->digits->length - 1];
+            for (u32 i = 1; i < r->digits->length; ++i)
             {
-                u32 j = r->digits.length - i - 1;
-                c = c * APNUM_Digit_MAX + r->digits.data[j];
+                u32 j = r->digits->length - i - 1;
+                c = c * APNUM_Digit_MAX + r->digits->data[j];
             }
         }
         c += '0';
-        vec_push(&buf, c);
-    } while (q->digits.length > 0);
+        vec_push(buf, c);
+    } while (q->digits->length > 0);
 
     APNUM_intFree(ibase);
     APNUM_intFree(r);
     APNUM_intFree(q1);
     APNUM_intFree(q);
 
-    u32 len = sp + buf.length;
+    u32 len = sp + buf->length;
     if (len >= strBufSize)
     {
         goto out;
@@ -325,11 +325,11 @@ u32 APNUM_intToStr(const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize)
     for (u32 i = sp; i < len; ++i)
     {
         u32 j = len - 1 - i;
-        strBuf[i] = buf.data[j];
+        strBuf[i] = buf->data[j];
     }
     strBuf[len] = 0;
 out:
-    vec_free(&buf);
+    vec_free(buf);
     return len;
 }
 
@@ -353,8 +353,8 @@ out:
 
 void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
 {
-    u32 alen = a->digits.length;
-    u32 blen = b->digits.length;
+    u32 alen = a->digits->length;
+    u32 blen = b->digits->length;
     u32 len = max(alen, blen);
     bool outNeg = false;
     if (a->neg && b->neg)
@@ -365,7 +365,7 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
     {
         outNeg = APNUM_intCmpAbs(a, b) < 0;
     }
-    vec_resize(&a->digits, len);
+    vec_resize(a->digits, len);
 
     s8 signA = a->neg ? (outNeg ? 1 : -1) : (outNeg ? -1 : 1);
     s8 signB = b->neg ? (outNeg ? 1 : -1) : (outNeg ? -1 : 1);
@@ -374,8 +374,8 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
     s8 carry = 0;
     for (u32 i = 0; i < len; ++i)
     {
-        APNUM_Wigit ea = (i < alen) ? a->digits.data[i] : 0;
-        APNUM_Wigit eb = (i < blen) ? b->digits.data[i] : 0;
+        APNUM_Wigit ea = (i < alen) ? a->digits->data[i] : 0;
+        APNUM_Wigit eb = (i < blen) ? b->digits->data[i] : 0;
         ea = ea * signA;
         eb = eb * signB;
         e = ea + eb + carry;
@@ -396,12 +396,12 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
             carry = 0;
         }
         assert(e < APNUM_Digit_MAX);
-        a->digits.data[i] = (APNUM_Digit)e;
+        a->digits->data[i] = (APNUM_Digit)e;
     }
     assert(carry >= 0);
     if (carry > 0)
     {
-        vec_push(&a->digits, 1);
+        vec_push(a->digits, 1);
     }
     APNUM_intClearZeros(a);
     if (outNeg)
@@ -413,9 +413,8 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
 
 void APNUM_intSubInP(APNUM_int* a, const APNUM_int* b)
 {
-    APNUM_int t = { 0 };
-    APNUM_int* negb = &t;
-    negb->digits = b->digits;
+    APNUM_int negb[1] = { 0 };
+    negb->digits[0] = b->digits[0];
     negb->neg = !b->neg;
     APNUM_intAddInP(a, negb);
 }
@@ -464,7 +463,7 @@ void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
     assert(out != a);
     assert(out != b);
     APNUM_int* sum = out;
-    vec_resize(&sum->digits, 0);
+    vec_resize(sum->digits, 0);
     if (APNUM_intCmpAbs(a, b) < 0)
     {
         const APNUM_int* t = a;
@@ -473,9 +472,9 @@ void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
     }
     APNUM_int* ea = APNUM_intZero();
     APNUM_intDup(ea, a);
-    for (u32 i = 0; i < b->digits.length; ++i)
+    for (u32 i = 0; i < b->digits->length; ++i)
     {
-        u32 n = b->digits.data[i];
+        u32 n = b->digits->data[i];
         for (u32 i = 0; i < n; ++i)
         {
             APNUM_intAddInP(sum, ea);
@@ -504,13 +503,13 @@ void APNUM_intDiv(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* a, const AP
     assert(outR != b);
     APNUM_int* q = outQ;
     APNUM_int* r = outR;
-    vec_resize(&q->digits, 0);
-    vec_resize(&r->digits, 0);
-    APNUM_int eb = { b->digits };
+    vec_resize(q->digits, 0);
+    vec_resize(r->digits, 0);
+    APNUM_int eb[1] = { b->digits[0] };
     int rel = APNUM_intCmpAbs(a, b);
     if (0 == rel)
     {
-        vec_push(&q->digits, 1);
+        vec_push(q->digits, 1);
         goto out;
     }
     if (rel < 0)
@@ -518,11 +517,11 @@ void APNUM_intDiv(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* a, const AP
         APNUM_intDup(r, a);
         goto out;
     }
-    assert(b->digits.length > 0);
-    for (u32 i = 0; i < a->digits.length; ++i)
+    assert(b->digits->length > 0);
+    for (u32 i = 0; i < a->digits->length; ++i)
     {
-        u32 j = a->digits.length - 1 - i;
-        APNUM_intDightsInsertAt0(r, a->digits.data[j]);
+        u32 j = a->digits->length - 1 - i;
+        APNUM_intDightsInsertAt0(r, a->digits->data[j]);
         u32 er = 0;
         for (;; ++er)
         {
@@ -531,7 +530,7 @@ void APNUM_intDiv(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* a, const AP
             {
                 break;
             }
-            APNUM_intSubInP(r, &eb);
+            APNUM_intSubInP(r, eb);
         }
         APNUM_intDightsInsertAt0(q, er);
     }
