@@ -297,7 +297,11 @@ u32 APNUM_intToStr(const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize)
         APNUM_intSwap(q, q1);
         if (r->digits.length > 0)
         {
-            vec_push(&buf, r->digits.data[0] + '0');
+            vec_push(&buf, '0' + r->digits.data[0]);
+        }
+        else
+        {
+            vec_push(&buf, '0');
         }
     } while (q->digits.length > 0);
 
