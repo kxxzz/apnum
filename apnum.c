@@ -41,7 +41,7 @@ typedef vec_t(APNUM_Digit) APNUM_DigitVec;
 
 enum
 {
-    APNUM_Digit_MAX = 10,
+    APNUM_Digit_MAX = 16,
 };
 
 static_assert(APNUM_Digit_MAX <= UINT8_MAX, "");
@@ -272,7 +272,6 @@ bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
 
 u32 APNUM_intToStr(const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize)
 {
-    assert(10 == base);
     if (0 == a->digits.length)
     {
         strBuf[0] = '0';
@@ -295,14 +294,18 @@ u32 APNUM_intToStr(const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize)
     {
         APNUM_intDiv(q1, r, q, ibase);
         APNUM_intSwap(q, q1);
+        char c = 0;
         if (r->digits.length > 0)
         {
-            vec_push(&buf, '0' + r->digits.data[0]);
+            c += r->digits.data[r->digits.length - 1];
+            for (u32 i = 1; i < r->digits.length; ++i)
+            {
+                u32 j = r->digits.length - i - 1;
+                c = c * APNUM_Digit_MAX + r->digits.data[j];
+            }
         }
-        else
-        {
-            vec_push(&buf, '0');
-        }
+        c += '0';
+        vec_push(&buf, c);
     } while (q->digits.length > 0);
 
     APNUM_intFree(ibase);
