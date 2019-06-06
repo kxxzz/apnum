@@ -41,7 +41,7 @@ typedef vec_t(APNUM_Digit) APNUM_DigitVec;
 
 enum
 {
-    APNUM_Digit_MAX = 0xff,
+    APNUM_Digit_MAX = 10,
 };
 
 static_assert(APNUM_Digit_MAX <= UINT8_MAX, "");
