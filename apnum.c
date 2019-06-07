@@ -115,7 +115,7 @@ static void APNUM_intDigitsByU32(APNUM_int* a, u32 x)
 
 
 
-static void APNUM_intDightsInsertAt0(APNUM_int* a, u32 x)
+static void APNUM_intDightsInsertAt0(APNUM_int* a, APNUM_Digit x)
 {
     assert(x < APNUM_Digit_MAX);
     if ((a->digits->length > 0) || x)
@@ -598,8 +598,8 @@ static void APNUM_intMulLong(APNUM_int* out, const APNUM_int* a, const APNUM_int
     APNUM_intDup(ea, a);
     for (u32 i = 0; i < b->digits->length; ++i)
     {
-        u32 n = b->digits->data[i];
-        for (u32 i = 0; i < n; ++i)
+        APNUM_Digit eb = b->digits->data[i];
+        for (u32 i = 0; i < eb; ++i)
         {
             APNUM_intAddInP(sum, ea);
         }
