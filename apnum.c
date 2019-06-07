@@ -582,7 +582,7 @@ void APNUM_intSub(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
 
 
-// https://en.m.wikipedia.org/wiki/Multiplication_algorithm
+// https://en.wikipedia.org/wiki/Multiplication_algorithm
 
 
 
@@ -645,9 +645,10 @@ void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
 
 
+// https://en.wikipedia.org/wiki/Division_algorithm
 
 
-// https://en.m.wikipedia.org/wiki/Long_division
+// https://en.wikipedia.org/wiki/Long_division
 
 void APNUM_intDivLong(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* a, const APNUM_int* b)
 {
