@@ -42,6 +42,7 @@ typedef vec_t(APNUM_Digit) APNUM_DigitVec;
 enum
 {
     APNUM_Digit_MAX = 64,
+    APNUM_StrBase_MAX = 35,
 };
 
 static_assert(APNUM_Digit_MAX <= UINT8_MAX, "");
@@ -121,6 +122,64 @@ static void APNUM_intDightsInsertAt0(APNUM_int* a, u32 x)
         vec_insert(a->digits, 0, x);
     }
 }
+
+
+
+
+
+
+
+
+
+static APNUM_Digit APNUM_digitFromChar(char c)
+{
+    switch (c)
+    {
+    case '0': return 0;
+    case '1': return 1;
+    case '2': return 2;
+    case '3': return 3;
+    case '4': return 4;
+    case '5': return 5;
+    case '6': return 6;
+    case '7': return 7;
+    case '8': return 8;
+    case '9': return 9;
+    case 'a': case 'A': return 10;
+    case 'b': case 'B': return 11;
+    case 'c': case 'C': return 12;
+    case 'd': case 'D': return 13;
+    case 'e': case 'E': return 14;
+    case 'f': case 'F': return 15;
+    case 'g': case 'G': return 16;
+    case 'h': case 'H': return 17;
+    case 'i': case 'I': return 18;
+    case 'j': case 'J': return 19;
+    case 'k': case 'K': return 20;
+    case 'l': case 'L': return 21;
+    case 'm': case 'M': return 22;
+    case 'n': case 'N': return 23;
+    case 'o': case 'O': return 24;
+    case 'p': case 'P': return 25;
+    case 'q': case 'Q': return 26;
+    case 'r': case 'R': return 27;
+    case 's': case 'S': return 28;
+    case 't': case 'T': return 29;
+    case 'u': case 'U': return 30;
+    case 'v': case 'V': return 31;
+    case 'w': case 'W': return 32;
+    case 'x': case 'X': return 33;
+    case 'y': case 'Y': return 34;
+    case 'z': case 'Z': return 35;
+    default: return APNUM_StrBase_MAX + 1;
+    }
+}
+
+
+
+
+
+
 
 
 
@@ -207,6 +266,10 @@ static void APNUM_intClearZeros(APNUM_int* a)
 
 bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
 {
+    if (base > APNUM_StrBase_MAX)
+    {
+        return false;
+    }
     APNUM_int* a = out;
     vec_resize(a->digits, 0);
 
@@ -220,7 +283,8 @@ bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
     u32 sp = (('-' == str[0]) || ('+' == str[0])) ? 1 : 0;
     for (u32 i = sp; i < len; ++i)
     {
-        if ((str[i] < '0') || (str[i] > '9'))
+        APNUM_Digit d = APNUM_digitFromChar(str[i]);
+        if (d > base)
         {
             return false;
         }
@@ -242,7 +306,7 @@ bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
     APNUM_int* a1 = APNUM_intZero();
 
     b->neg = a->neg;
-    APNUM_intDigitsByU32(b, str[sp] - '0');
+    APNUM_intDigitsByU32(b, APNUM_digitFromChar(str[sp]));
     APNUM_intAddInP(a, b);
 
     for (u32 i = sp + 1; i < len; ++i)
@@ -253,7 +317,7 @@ bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
         APNUM_intSwap(a, a1);
 
         b->neg = a->neg;
-        APNUM_intDigitsByU32(b, str[i] - '0');
+        APNUM_intDigitsByU32(b, APNUM_digitFromChar(str[i]));
         APNUM_intAddInP(a, b);
     }
 
@@ -270,6 +334,11 @@ bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
 
 u32 APNUM_intToStr(const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize)
 {
+    static const char charTable[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+    if (base > APNUM_StrBase_MAX)
+    {
+        return 0;
+    }
     if (0 == a->digits->length)
     {
         strBuf[0] = '0';
@@ -302,7 +371,8 @@ u32 APNUM_intToStr(const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize)
                 c = c * APNUM_Digit_MAX + r->digits->data[j];
             }
         }
-        c += '0';
+        assert(c <= (char)base);
+        c = charTable[c];
         vec_push(buf, c);
     } while (q->digits->length > 0);
 
