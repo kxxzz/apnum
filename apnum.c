@@ -579,12 +579,13 @@ void APNUM_intSub(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
 
 
+// https://en.m.wikipedia.org/wiki/Multiplication_algorithm
 
 
-void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
+
+// Long multiplication
+static void APNUM_intMulLong(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
-    assert(out != a);
-    assert(out != b);
     APNUM_int* sum = out;
     vec_resize(sum->digits, 0);
     if (APNUM_intCmpAbs(a, b) < 0)
@@ -607,6 +608,27 @@ void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
     APNUM_intFree(ea);
     sum->neg = a->neg ? !b->neg : b->neg;
 }
+
+
+
+
+
+
+
+
+
+
+
+void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
+{
+    assert(out != a);
+    assert(out != b);
+    APNUM_intMulLong(out, a, b);
+}
+
+
+
+
 
 
 

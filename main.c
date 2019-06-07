@@ -94,10 +94,10 @@ static void test(void)
 
     {
         APNUM_int* a = APNUM_intZero();
-        r = APNUM_intFromStr(a, 10, "-22999999999999999999999999999999999999999999999999999999999999999999999999999999");
+        r = APNUM_intFromStr(a, 10, "23958233");
         assert(r);
         APNUM_int* b = APNUM_intZero();
-        r = APNUM_intFromStr(b, 10, "-11239999999999999999999999999999999999999999999999999999999999999999999999999999");
+        r = APNUM_intFromStr(b, 10, "5830");
         assert(r);
         APNUM_int* c = APNUM_intZero(); 
         APNUM_intMul(c, a, b);
