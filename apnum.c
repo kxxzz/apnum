@@ -227,7 +227,7 @@ static int APNUM_intCmpAbs(const APNUM_int* a, const APNUM_int* b)
 
 
 
-static void APNUM_intClearZeros(APNUM_int* a)
+static void APNUM_intTruncate(APNUM_int* a)
 {
     while (a->digits->length && (vec_last(a->digits) == 0))
     {
@@ -557,7 +557,7 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
     {
         vec_push(a->digits, 1);
     }
-    APNUM_intClearZeros(a);
+    APNUM_intTruncate(a);
     if (outNeg)
     {
         a->neg = true;
