@@ -672,7 +672,7 @@ void APNUM_intDivLong(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* a, cons
     {
         u32 j = a->digits->length - 1 - i;
         APNUM_intDightsInsertAt0(r, a->digits->data[j]);
-        u32 er = 0;
+        APNUM_Digit er = 0;
         for (;; ++er)
         {
             rel = APNUM_intCmpAbs(r, b);
