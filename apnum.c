@@ -32,22 +32,19 @@
 
 
 
-
-#define APNUM_Digit_Base 16
-#define APNUM_StrChar_Base_MAX 35u
-
-
-
-static_assert(APNUM_Digit_Base <= UINT8_MAX, "");
-
-
-
-
-
-
 typedef u8 APNUM_Digit;
 typedef s16 APNUM_Wigit;
 typedef vec_t(APNUM_Digit) APNUM_DigitVec;
+
+
+
+#define APNUM_Digit_Base 0xff
+static_assert(APNUM_Digit_Base <= (APNUM_Digit)-1, "");
+
+
+
+#define APNUM_StrChar_Base_MAX 35u
+
 
 
 
