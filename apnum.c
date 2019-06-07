@@ -207,8 +207,6 @@ static void APNUM_intClearZeros(APNUM_int* a)
 
 bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
 {
-    assert(10 == base);
-
     APNUM_int* a = out;
     vec_resize(a->digits, 0);
 
