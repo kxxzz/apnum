@@ -490,8 +490,8 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
     }
     vec_resize(a->digits, len);
 
-    s8 signA = a->neg ? (outNeg ? 1 : -1) : (outNeg ? -1 : 1);
-    s8 signB = b->neg ? (outNeg ? 1 : -1) : (outNeg ? -1 : 1);
+    s8 signA = (a->neg ^ outNeg) ? -1 : 1;
+    s8 signB = (b->neg ^ outNeg) ? -1 : 1;
 
     APNUM_Wigit e = 0;
     s8 carry = 0;
@@ -606,7 +606,7 @@ static void APNUM_intMulLong(APNUM_int* out, const APNUM_int* a, const APNUM_int
         APNUM_intDightsInsertAt0(ea, 0);
     }
     APNUM_intFree(ea);
-    sum->neg = a->neg ? !b->neg : b->neg;
+    sum->neg = a->neg ^ b->neg;
 }
 
 
@@ -680,7 +680,7 @@ void APNUM_intDiv(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* a, const AP
         APNUM_intDightsInsertAt0(q, er);
     }
 out:
-    q->neg = a->neg ? !b->neg : b->neg;
+    q->neg = a->neg ^ b->neg;
     r->neg = a->neg;
 }
 
