@@ -45,6 +45,7 @@ enum
     APNUM_StrBase_MAX = 35,
 };
 
+static_assert(APNUM_StrBase_MAX < APNUM_Digit_MAX, "");
 static_assert(APNUM_Digit_MAX <= UINT8_MAX, "");
 
 
@@ -129,8 +130,6 @@ static void APNUM_intDightsInsertAt0(APNUM_int* a, u32 x)
 
 
 
-
-
 static APNUM_Digit APNUM_digitFromChar(char c)
 {
     switch (c)
@@ -174,7 +173,6 @@ static APNUM_Digit APNUM_digitFromChar(char c)
     default: return APNUM_StrBase_MAX + 1;
     }
 }
-
 
 
 
@@ -264,7 +262,7 @@ static void APNUM_intClearZeros(APNUM_int* a)
 
 
 
-bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
+static bool APNUM_intFromStrWithHead(APNUM_int* out, u32 base, const char* str, u32 headLen)
 {
     if (base > APNUM_StrBase_MAX)
     {
@@ -281,6 +279,7 @@ bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
     }
     bool neg = '-' == str[0];
     u32 sp = (('-' == str[0]) || ('+' == str[0])) ? 1 : 0;
+    sp += headLen;
     for (u32 i = sp; i < len; ++i)
     {
         APNUM_Digit d = APNUM_digitFromChar(str[i]);
@@ -332,7 +331,7 @@ bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
 
 
 
-u32 APNUM_intToStr(const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize)
+static u32 APNUM_intToStrWithHead(const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize, u32 headLen, const char* head)
 {
     static const char charTable[] = "0123456789abcdefghijklmnopqrstuvwxyz";
     if (base > APNUM_StrBase_MAX)
@@ -346,6 +345,15 @@ u32 APNUM_intToStr(const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize)
         return 1;
     }
     u32 sp = a->neg ? 1 : 0;
+    if (a->neg)
+    {
+        strBuf[0] = '-';
+    }
+    for (u32 i = 0; i < headLen; ++i)
+    {
+        strBuf[sp + i] = head[i];
+    }
+    sp += headLen;
 
     APNUM_int* q = APNUM_intZero();
     APNUM_intDup(q, a);
@@ -386,10 +394,6 @@ u32 APNUM_intToStr(const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize)
     {
         goto out;
     }
-    if (a->neg)
-    {
-        strBuf[0] = '-';
-    }
     for (u32 i = sp; i < len; ++i)
     {
         u32 j = len - 1 - i;
@@ -404,6 +408,88 @@ out:
 
 
 
+
+
+
+
+
+bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
+{
+    return APNUM_intFromStrWithHead(out, base, str, 0);
+}
+
+
+u32 APNUM_intToStr(const APNUM_int* x, u32 base, char* strBuf, u32 strBufSize)
+{
+    return APNUM_intToStrWithHead(x, base, strBuf, strBufSize, 0, NULL);
+}
+
+
+bool APNUM_intFromStrWithBaseFmt(APNUM_int* out, const char* str)
+{
+    u32 base = 10;
+    u32 headLen = 0;
+    u32 sp = (('-' == str[0]) || ('+' == str[0])) ? 1 : 0;
+    if ('0' == str[sp])
+    {
+        switch (str[sp + 1])
+        {
+        case 'b':
+        case 'B':
+            base = 2;
+            headLen = 2;
+            break;
+        case 'o':
+        case 'O':
+            base = 8;
+            headLen = 2;
+            break;
+        case 'x':
+        case 'X':
+            base = 16;
+            headLen = 2;
+            break;
+        default:
+            break;
+        }
+    }
+    return APNUM_intFromStrWithHead(out, base, str, headLen);
+}
+
+
+u32 APNUM_intToStrWithBaseFmt(const APNUM_int* x, APNUM_int_StrBaseFmtType baseFmt, char* strBuf, u32 strBufSize)
+{
+    u32 base = 10;
+    u32 headLen = 0;
+    const char* head = NULL;
+    switch (baseFmt)
+    {
+    case APNUM_int_StrBaseFmtType_DEC:
+        base = 10;
+        headLen = 0;
+        head = NULL;
+        break;
+    case APNUM_int_StrBaseFmtType_BIN:
+        base = 2;
+        headLen = 2;
+        head = "0b";
+        break;
+    case APNUM_int_StrBaseFmtType_OCT:
+        base = 8;
+        headLen = 2;
+        head = "0o";
+        break;
+    case APNUM_int_StrBaseFmtType_HEX:
+        base = 16;
+        headLen = 2;
+        head = "0x";
+        break;
+    default:
+        assert(false);
+        break;
+    }
+    return APNUM_intToStrWithHead(x, base, strBuf, strBufSize, headLen, head);
+}
 
 
 
