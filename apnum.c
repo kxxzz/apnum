@@ -38,7 +38,7 @@ typedef vec_t(APNUM_Digit) APNUM_DigitVec;
 
 
 
-#define APNUM_Digit_Base 0xff
+#define APNUM_Digit_Base (APNUM_Digit)-1
 static_assert(APNUM_Digit_Base <= (APNUM_Digit)-1, "");
 
 
@@ -587,6 +587,7 @@ void APNUM_intSub(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
 
 // Long multiplication
+
 static void APNUM_intMulLong(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
     APNUM_int* sum = out;
@@ -646,16 +647,10 @@ void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
 
 
+// https://en.m.wikipedia.org/wiki/Long_division
 
-
-
-
-void APNUM_intDiv(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* a, const APNUM_int* b)
+void APNUM_intDivLong(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* a, const APNUM_int* b)
 {
-    assert(outQ != a);
-    assert(outQ != b);
-    assert(outR != a);
-    assert(outR != b);
     APNUM_int* q = outQ;
     APNUM_int* r = outR;
     vec_resize(q->digits, 0);
@@ -692,6 +687,26 @@ void APNUM_intDiv(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* a, const AP
 out:
     q->neg = a->neg ^ b->neg;
     r->neg = a->neg;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void APNUM_intDiv(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* a, const APNUM_int* b)
+{
+    assert(outQ != a);
+    assert(outQ != b);
+    assert(outR != a);
+    assert(outR != b);
+    APNUM_intDivLong(outQ, outR, a, b);
 }
 
 
