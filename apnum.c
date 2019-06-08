@@ -753,9 +753,10 @@ void APNUM_intDivSimple(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, co
     APNUM_int* Q1 = APNUM_intZero();
     for (;;)
     {
-        Q1->neg = false;
+        Q1->neg = R->neg;
         vec_resize(Q1->digits, 0);
 
+        assert(N1->digits->length >= D->digits->length);
         u32 l = N1->digits->length - D->digits->length + 1;
         APNUM_Wigit r = 0;
         for (u32 i = 0; i < l; ++i)
@@ -782,7 +783,7 @@ void APNUM_intDivSimple(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, co
         R->neg = true;
 
         APNUM_intAddInP(R, N_abs);
-        if (APNUM_intCmp(R, D_abs) < 0)
+        if (!R->neg && (APNUM_intCmpAbs(R, D) < 0))
         {
             break;
         }
