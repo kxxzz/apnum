@@ -32,13 +32,13 @@
 
 
 
-typedef u8 APNUM_Digit;
-typedef s16 APNUM_Wigit;
+typedef u32 APNUM_Digit;
+typedef s64 APNUM_Wigit;
 typedef vec_t(APNUM_Digit) APNUM_DigitVec;
 
 
 
-#define APNUM_Digit_Base 10
+#define APNUM_Digit_Base (APNUM_Digit)-1
 static_assert(APNUM_Digit_Base <= (APNUM_Digit)-1, "");
 
 
@@ -747,24 +747,22 @@ void APNUM_intDivSimple(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, co
     APNUM_int N_abs[1] = { N->digits[0] };
     APNUM_int D_abs[1] = { D->digits[0] };
 
-    APNUM_int* N1 = APNUM_intZero();
-    APNUM_intDup(N1, N_abs);
-
+    APNUM_intDup(R, N_abs);
     APNUM_int* Q1 = APNUM_intZero();
     for (;;)
     {
         Q1->neg = R->neg;
         vec_resize(Q1->digits, 0);
 
-        assert(N1->digits->length >= D->digits->length);
-        u32 l = N1->digits->length - D->digits->length + 1;
+        assert(R->digits->length >= D->digits->length);
+        u32 l = R->digits->length - D->digits->length + 1;
         APNUM_Wigit r = 0;
         for (u32 i = 0; i < l; ++i)
         {
             u32 j = l - 1 - i;
             j = D->digits->length - 1 + j;
             r *= APNUM_Digit_Base;
-            r += N1->digits->data[j];
+            r += R->digits->data[j];
             if (r >= d)
             {
                 APNUM_Wigit e = r / d;
@@ -783,14 +781,20 @@ void APNUM_intDivSimple(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, co
         R->neg = true;
 
         APNUM_intAddInP(R, N_abs);
-        if (!R->neg && (APNUM_intCmpAbs(R, D) < 0))
+        if (APNUM_intCmpAbs(R, D) < 0)
         {
+            if (R->neg)
+            {
+                Q1->neg = R->neg;
+                vec_resize(Q1->digits, 1);
+                Q1->digits->data[0] = 1;
+                APNUM_intAddInP(Q, Q1);
+                APNUM_intAddInP(R, D_abs);
+            }
             break;
         }
-        APNUM_intDup(N1, R);
     }
     APNUM_intFree(Q1);
-    APNUM_intFree(N1);
 out:
     Q->neg = N->neg ^ D->neg;
     R->neg = N->neg;

@@ -30,8 +30,8 @@ static void test(void)
     {
         APNUM_int* a = APNUM_intZero();
         APNUM_int* b = APNUM_intZero();
-        APNUM_intFromStr(a, 10, "344");
-        APNUM_intFromStr(b, 10, "33");
+        APNUM_intFromStr(a, 10, "999999999");
+        APNUM_intFromStr(b, 10, "56789");
         APNUM_int* c = APNUM_intZero();
         APNUM_int* d = APNUM_intZero();
         APNUM_intDiv(c, d, a, b);
