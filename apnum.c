@@ -614,7 +614,7 @@ static void APNUM_intMulLong(APNUM_int* out, const APNUM_int* a, const APNUM_int
 {
     APNUM_int* sum = out;
     vec_resize(sum->digits, a->digits->length + b->digits->length);
-    memset(sum->digits->data, 0, sum->digits->length * sizeof(sum->digits->data[0]));
+    vec_setzero(sum->digits);
     if (APNUM_intCmpAbs(a, b) < 0)
     {
         const APNUM_int* t = a;
