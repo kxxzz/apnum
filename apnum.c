@@ -799,7 +799,6 @@ void APNUM_intDivSimple(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, co
     for (;;)
     {
         RA->neg = R->neg;
-
         assert(R->digits->length >= D->digits->length);
         u32 R_digitsLen = R->digits->length - D->digits->length + 1;
         const APNUM_Digit* R_digits = R->digits->data + D->digits->length - 1;
