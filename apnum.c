@@ -742,7 +742,7 @@ void APNUM_intDivSimple(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, co
     }
 
     assert(D->digits->length > 0);
-    APNUM_Wigit De = vec_last(D->digits);
+    APNUM_Wigit d = vec_last(D->digits);
 
     APNUM_int N_abs[1] = { N->digits[0] };
     APNUM_int D_abs[1] = { D->digits[0] };
@@ -764,13 +764,12 @@ void APNUM_intDivSimple(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, co
             j = D->digits->length - 1 + j;
             r *= APNUM_Digit_Base;
             r += N1->digits->data[j];
-            if (r >= De)
+            if (r >= d)
             {
-                APNUM_Wigit qe = r / De;
-                APNUM_Wigit e = qe % APNUM_Digit_Base;
+                APNUM_Wigit e = r / d;
                 assert(e < APNUM_Digit_Base);
                 APNUM_intDightsInsertAt0(Q1, (APNUM_Digit)e);
-                r = r - qe * De;
+                r = r - e * d;
             }
             else
             {
