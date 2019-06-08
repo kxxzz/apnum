@@ -785,7 +785,7 @@ void APNUM_intDivSimple(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, co
         {
             if (R->neg)
             {
-                Q1->neg = R->neg;
+                Q1->neg = true;
                 APNUM_intDigitsByU32(Q1, 1);
                 APNUM_intAddInP(Q, Q1);
                 APNUM_intAddInP(R, D_abs);
