@@ -130,29 +130,45 @@ static void APNUM_intDightsInsertAt0(APNUM_int* a, APNUM_Digit x)
 
 
 
-static APNUM_Digit APNUM_intDigitsDiv(APNUM_int* q, u32 digitsLen, const APNUM_Digit* digits, APNUM_Digit d)
+static APNUM_Digit APNUM_intDigitsDivDigit(APNUM_int* Q, u32 N_digitsLen, const APNUM_Digit* N_digits, APNUM_Digit D)
 {
-    APNUM_Wigit r = 0;
-    for (u32 i = 0; i < digitsLen; ++i)
+    vec_resize(Q->digits, 0);
+    APNUM_Wigit R = 0;
+    for (u32 i = 0; i < N_digitsLen; ++i)
     {
-        u32 j = digitsLen - 1 - i;
-        r *= APNUM_Digit_Base;
-        r += digits[j];
-        if (r >= d)
+        u32 j = N_digitsLen - 1 - i;
+        R *= APNUM_Digit_Base;
+        R += N_digits[j];
+        if (R >= D)
         {
-            APNUM_Wigit e = r / d;
+            APNUM_Wigit e = R / D;
             assert(e < APNUM_Digit_Base);
-            APNUM_intDightsInsertAt0(q, (APNUM_Digit)e);
-            r = r - e * d;
+            APNUM_intDightsInsertAt0(Q, (APNUM_Digit)e);
+            R = R - e * D;
         }
         else
         {
-            APNUM_intDightsInsertAt0(q, 0);
+            APNUM_intDightsInsertAt0(Q, 0);
         }
-        assert(r < APNUM_Digit_Base);
+        assert(R < APNUM_Digit_Base);
     }
-    return (APNUM_Digit)r;
+    return (APNUM_Digit)R;
 }
+
+
+
+
+
+static APNUM_Digit APNUM_intDivDigit(APNUM_int* Q, const APNUM_int* N, APNUM_Digit D)
+{
+    return APNUM_intDigitsDivDigit(Q, N->digits->length, N->digits->data, D);
+}
+
+
+
+
+
+
 
 
 
@@ -779,17 +795,21 @@ void APNUM_intDivSimple(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, co
 
     APNUM_intDup(R, N_abs);
     APNUM_int* RA = APNUM_intZero();
+    APNUM_int* t = APNUM_intZero();
     for (;;)
     {
         RA->neg = R->neg;
-        vec_resize(RA->digits, 0);
 
         assert(R->digits->length >= D->digits->length);
         u32 R_digitsLen = R->digits->length - D->digits->length + 1;
         const APNUM_Digit* R_digits = R->digits->data + D->digits->length - 1;
+        APNUM_intDigitsDivDigit(RA, R_digitsLen, R_digits, A);
 
-        APNUM_intDigitsDiv(RA, R_digitsLen, R_digits, A);
-        APNUM_intAddInP(Q, RA);
+        APNUM_intAdd(t, Q, RA);
+        APNUM_intAddInP(t, Q);
+        APNUM_Digit r = APNUM_intDivDigit(Q, t, 2);
+        APNUM_intDigitsByU32(t, r);
+        APNUM_intAddInP(Q, t);
 
         APNUM_intMul(R, Q, D_abs);
         R->neg = true;
@@ -807,6 +827,7 @@ void APNUM_intDivSimple(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, co
             break;
         }
     }
+    APNUM_intFree(t);
     APNUM_intFree(RA);
 out:
     Q->neg = N->neg ^ D->neg;
