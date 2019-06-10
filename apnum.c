@@ -564,10 +564,11 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
     }
 
     u32 len = max(a->digits->length, b->digits->length);
-    vec_reserve(a->digits, len + 1);
 
     if (a->neg == b->neg)
     {
+        vec_reserve(a->digits, len + 1);
+
         bool carry = false;
         for (u32 i = 0; i < len; ++i)
         {
@@ -598,6 +599,8 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
     }
     else
     {
+        vec_reserve(a->digits, len);
+
         const APNUM_int *m, *s;
         if (APNUM_intCmpAbs(a, b) >= 0)
         {
