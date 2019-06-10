@@ -565,13 +565,12 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
 
     if (a->neg == b->neg)
     {
-        APNUM_Wigit e = 0;
         bool carry = false;
         for (u32 i = 0; i < len; ++i)
         {
             APNUM_Wigit ea = (i < a->digits->length) ? a->digits->data[i] : 0;
             APNUM_Wigit eb = (i < b->digits->length) ? b->digits->data[i] : 0;
-            e = e + ea + eb;
+            APNUM_Wigit e = ea + eb + (carry ? 1 : 0);
             if (e >= APNUM_Digit_Base)
             {
                 e -= APNUM_Digit_Base;
@@ -583,7 +582,6 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
             }
             assert(e < APNUM_Digit_Base);
             a->digits->data[i] = (APNUM_Digit)e;
-            e = carry ? 1 : 0;
         }
         if (carry)
         {
@@ -608,27 +606,25 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
             m = b;
             s = a;
         }
-        APNUM_Wigit e = 0;
         bool carry = false;
         for (u32 i = 0; i < len; ++i)
         {
             APNUM_Wigit em = (i < m->digits->length) ? m->digits->data[i] : 0;
             APNUM_Wigit es = (i < s->digits->length) ? s->digits->data[i] : 0;
-            e = e + em;
-            es = es + (carry ? 1 : 0);
-            if (e < es)
+            es += carry ? 1 : 0;
+            if (em < es)
             {
-                e += APNUM_Digit_Base;
+                em += APNUM_Digit_Base;
                 carry = true;
             }
             else
             {
                 carry = false;
             }
-            assert(e >= es);
-            e -= es;
-            assert(e < APNUM_Digit_Base);
-            a->digits->data[i] = (APNUM_Digit)e;
+            assert(em >= es);
+            APNUM_Wigit ed = em - es;
+            assert(ed < APNUM_Digit_Base);
+            a->digits->data[i] = (APNUM_Digit)ed;
         }
         assert(!carry);
         vec_resize(a->digits, len);
