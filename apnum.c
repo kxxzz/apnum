@@ -32,10 +32,9 @@
 
 
 
-typedef u8 APNUM_Digit;
+typedef u32 APNUM_Digit;
 typedef u64 APNUM_Wigit;
-typedef vec_t(APNUM_Digit) APNUM_DigitVec;
-
+static_assert(sizeof(APNUM_Digit) * 2 <= sizeof(APNUM_Wigit), "");
 
 
 #define APNUM_Digit_Base (APNUM_Digit)-1
@@ -45,6 +44,10 @@ static_assert(APNUM_Digit_Base <= (APNUM_Digit)-1, "");
 
 #define APNUM_StrChar_Base_MAX 35u
 
+
+
+
+typedef vec_t(APNUM_Digit) APNUM_DigitVec;
 
 
 
