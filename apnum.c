@@ -4,6 +4,9 @@
 #include <math.h>
 #include <assert.h>
 
+#include <vec.h>
+
+
 
 
 #ifdef ARYLEN
@@ -32,6 +35,16 @@
 
 
 
+
+
+#define APNUM_StrChar_Base_MAX 35u
+
+
+
+
+
+
+
 typedef u32 APNUM_Digit;
 typedef u64 APNUM_Wigit;
 static_assert(sizeof(APNUM_Digit) * 2 <= sizeof(APNUM_Wigit), "");
@@ -41,13 +54,62 @@ static_assert(sizeof(APNUM_Digit) * 2 <= sizeof(APNUM_Wigit), "");
 static_assert(APNUM_Digit_Base <= (APNUM_Digit)-1, "");
 
 
-
-#define APNUM_StrChar_Base_MAX 35u
-
-
-
-
 typedef vec_t(APNUM_Digit) APNUM_DigitVec;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+typedef vec_t(APNUM_int*) APNUM_intPtrVec;
+
+
+typedef struct APNUM_pool
+{
+    APNUM_intPtrVec integers[1];
+    APNUM_intPtrVec freeIntegers[1];
+} APNUM_pool;
+
+APNUM_pool* APNUM_poolNew(void)
+{
+    APNUM_pool* pool = zalloc(sizeof(APNUM_pool));
+    return pool;
+}
+
+static void APNUM_intFreeMem(APNUM_int* x);
+
+void APNUM_poolFree(APNUM_pool* pool)
+{
+    vec_free(pool->freeIntegers);
+    for (u32 i = 0; i < pool->integers->length; ++i)
+    {
+        APNUM_intFreeMem(pool->integers->data[i]);
+    }
+    vec_free(pool->integers);
+    free(pool);
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -62,12 +124,7 @@ typedef struct APNUM_int
     bool neg;
 } APNUM_int;
 
-
-
-
-
-
-void APNUM_intFree(APNUM_int* x)
+static void APNUM_intFreeMem(APNUM_int* x)
 {
     vec_free(x->digits);
     free(x);
@@ -76,21 +133,45 @@ void APNUM_intFree(APNUM_int* x)
 
 
 
-void APNUM_intDup(APNUM_int* out, const APNUM_int* x)
+
+APNUM_int* APNUM_intZero(APNUM_pool* pool)
 {
-    vec_dup(out->digits, x->digits);
-    out->neg = x->neg;
+    if (pool->freeIntegers->length > 0)
+    {
+        APNUM_int* a = vec_last(pool->freeIntegers);
+        vec_pop(pool->freeIntegers);
+        vec_resize(a->digits, 0);
+        a->neg = false;
+        return a;
+    }
+    else
+    {
+        APNUM_int* a = zalloc(sizeof(*a));
+        return a;
+    }
+}
+
+void APNUM_intFree(APNUM_pool* pool, APNUM_int* x)
+{
+    vec_push(pool->freeIntegers, x);
 }
 
 
 
 
 
-APNUM_int* APNUM_intZero(void)
-{
-    APNUM_int* a = zalloc(sizeof(*a));
-    return a;
-}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -276,6 +357,44 @@ static void APNUM_intTruncate(APNUM_int* a)
 
 
 
+void APNUM_intDup(APNUM_int* out, const APNUM_int* x)
+{
+    vec_dup(out->digits, x->digits);
+    out->neg = x->neg;
+}
+
+
+
+
+bool APNUM_intIsZero(APNUM_int* x)
+{
+    if (x->neg)
+    {
+        assert(x->digits->length > 0);
+    }
+    return 0 == x->digits->length;
+}
+
+
+
+
+int APNUM_intCmp(const APNUM_int* a, const APNUM_int* b)
+{
+    if (!a->neg && b->neg)
+    {
+        return 1;
+    }
+    else if (a->neg && !b->neg)
+    {
+        return -1;
+    }
+    int r = 1;
+    if (a->neg && b->neg)
+    {
+        r = -1;
+    }
+    return APNUM_intCmpAbs(a, b) * r;
+}
 
 
 
@@ -283,7 +402,26 @@ static void APNUM_intTruncate(APNUM_int* a)
 
 
 
-static bool APNUM_intFromStrWithHead(APNUM_int* out, u32 base, const char* str, u32 headLen)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+static bool APNUM_intFromStrWithHead(APNUM_pool* pool, APNUM_int* out, u32 base, const char* str, u32 headLen)
 {
     if (base > APNUM_StrChar_Base_MAX)
     {
@@ -322,27 +460,27 @@ static bool APNUM_intFromStrWithHead(APNUM_int* out, u32 base, const char* str, 
         }
     }
 
-    APNUM_int* b = APNUM_intZero();
-    APNUM_int* a1 = APNUM_intZero();
+    APNUM_int* b = APNUM_intZero(pool);
+    APNUM_int* a1 = APNUM_intZero(pool);
 
     b->neg = a->neg;
     APNUM_intDigitsByU32(b, APNUM_digitFromChar(str[sp]));
-    APNUM_intAddInP(a, b);
+    APNUM_intAddInP(pool, a, b);
 
     for (u32 i = sp + 1; i < len; ++i)
     {
         b->neg = false;
         APNUM_intDigitsByU32(b, base);
-        APNUM_intMul(a1, a, b);
+        APNUM_intMul(pool, a1, a, b);
         APNUM_intSwap(a, a1);
 
         b->neg = a->neg;
         APNUM_intDigitsByU32(b, APNUM_digitFromChar(str[i]));
-        APNUM_intAddInP(a, b);
+        APNUM_intAddInP(pool, a, b);
     }
 
-    APNUM_intFree(a1);
-    APNUM_intFree(b);
+    APNUM_intFree(pool, a1);
+    APNUM_intFree(pool, b);
     return true;
 }
 
@@ -352,7 +490,10 @@ static bool APNUM_intFromStrWithHead(APNUM_int* out, u32 base, const char* str, 
 
 
 
-static u32 APNUM_intToStrWithHead(const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize, u32 headLen, const char* head)
+static u32 APNUM_intToStrWithHead
+(
+    APNUM_pool* pool, const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize, u32 headLen, const char* head
+)
 {
     static const char charTable[] = "0123456789abcdefghijklmnopqrstuvwxyz";
     if (base > APNUM_StrChar_Base_MAX)
@@ -376,19 +517,19 @@ static u32 APNUM_intToStrWithHead(const APNUM_int* a, u32 base, char* strBuf, u3
     }
     sp += headLen;
 
-    APNUM_int* q = APNUM_intZero();
+    APNUM_int* q = APNUM_intZero(pool);
     APNUM_intDup(q, a);
     q->neg = false;
 
-    APNUM_int* q1 = APNUM_intZero();
-    APNUM_int* r = APNUM_intZero();
-    APNUM_int* ibase = APNUM_intZero();
+    APNUM_int* q1 = APNUM_intZero(pool);
+    APNUM_int* r = APNUM_intZero(pool);
+    APNUM_int* ibase = APNUM_intZero(pool);
     APNUM_intDigitsByU32(ibase, base);
 
     vec_char buf[1] = { 0 };
     do 
     {
-        APNUM_intDiv(q1, r, q, ibase);
+        APNUM_intDiv(pool, q1, r, q, ibase);
         APNUM_intSwap(q, q1);
         char c = 0;
         if (r->digits->length > 0)
@@ -405,10 +546,10 @@ static u32 APNUM_intToStrWithHead(const APNUM_int* a, u32 base, char* strBuf, u3
         vec_push(buf, c);
     } while (q->digits->length > 0);
 
-    APNUM_intFree(ibase);
-    APNUM_intFree(r);
-    APNUM_intFree(q1);
-    APNUM_intFree(q);
+    APNUM_intFree(pool, ibase);
+    APNUM_intFree(pool, r);
+    APNUM_intFree(pool, q1);
+    APNUM_intFree(pool, q);
 
     u32 len = sp + buf->length;
     if (len >= strBufSize)
@@ -434,19 +575,19 @@ out:
 
 
 
-bool APNUM_intFromStr(APNUM_int* out, u32 base, const char* str)
+bool APNUM_intFromStr(APNUM_pool* pool, APNUM_int* out, u32 base, const char* str)
 {
-    return APNUM_intFromStrWithHead(out, base, str, 0);
+    return APNUM_intFromStrWithHead(pool, out, base, str, 0);
 }
 
 
-u32 APNUM_intToStr(const APNUM_int* x, u32 base, char* strBuf, u32 strBufSize)
+u32 APNUM_intToStr(APNUM_pool* pool, const APNUM_int* x, u32 base, char* strBuf, u32 strBufSize)
 {
-    return APNUM_intToStrWithHead(x, base, strBuf, strBufSize, 0, NULL);
+    return APNUM_intToStrWithHead(pool, x, base, strBuf, strBufSize, 0, NULL);
 }
 
 
-bool APNUM_intFromStrWithBaseFmt(APNUM_int* out, const char* str)
+bool APNUM_intFromStrWithBaseFmt(APNUM_pool* pool, APNUM_int* out, const char* str)
 {
     u32 base = 10;
     u32 headLen = 0;
@@ -474,11 +615,14 @@ bool APNUM_intFromStrWithBaseFmt(APNUM_int* out, const char* str)
             break;
         }
     }
-    return APNUM_intFromStrWithHead(out, base, str, headLen);
+    return APNUM_intFromStrWithHead(pool, out, base, str, headLen);
 }
 
 
-u32 APNUM_intToStrWithBaseFmt(const APNUM_int* x, APNUM_int_StrBaseFmtType baseFmt, char* strBuf, u32 strBufSize)
+u32 APNUM_intToStrWithBaseFmt
+(
+    APNUM_pool* pool, const APNUM_int* x, APNUM_int_StrBaseFmtType baseFmt, char* strBuf, u32 strBufSize
+)
 {
     u32 base = 10;
     u32 headLen = 0;
@@ -509,28 +653,7 @@ u32 APNUM_intToStrWithBaseFmt(const APNUM_int* x, APNUM_int_StrBaseFmtType baseF
         assert(false);
         break;
     }
-    return APNUM_intToStrWithHead(x, base, strBuf, strBufSize, headLen, head);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-bool APNUM_intIsZero(APNUM_int* x)
-{
-    if (x->neg)
-    {
-        assert(x->digits->length > 0);
-    }
-    return 0 == x->digits->length;
+    return APNUM_intToStrWithHead(pool, x, base, strBuf, strBufSize, headLen, head);
 }
 
 
@@ -547,7 +670,21 @@ bool APNUM_intIsZero(APNUM_int* x)
 
 
 
-void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void APNUM_intAddInP(APNUM_pool* pool, APNUM_int* a, const APNUM_int* b)
 {
     bool outNeg = false;
     if (a->neg && b->neg)
@@ -640,12 +777,12 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
 }
 
 
-void APNUM_intSubInP(APNUM_int* a, const APNUM_int* b)
+void APNUM_intSubInP(APNUM_pool* pool, APNUM_int* a, const APNUM_int* b)
 {
     APNUM_int negb[1] = { 0 };
     negb->digits[0] = b->digits[0];
     negb->neg = !b->neg;
-    APNUM_intAddInP(a, negb);
+    APNUM_intAddInP(pool, a, negb);
 }
 
 
@@ -660,21 +797,21 @@ void APNUM_intSubInP(APNUM_int* a, const APNUM_int* b)
 
 
 
-void APNUM_intAdd(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
+void APNUM_intAdd(APNUM_pool* pool, APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
     assert(out != a);
     assert(out != b);
     APNUM_intDup(out, a);
-    APNUM_intAddInP(out, b);
+    APNUM_intAddInP(pool, out, b);
 }
 
 
-void APNUM_intSub(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
+void APNUM_intSub(APNUM_pool* pool, APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
     assert(out != a);
     assert(out != b);
     APNUM_intDup(out, a);
-    APNUM_intSubInP(out, b);
+    APNUM_intSubInP(pool, out, b);
 }
 
 
@@ -691,7 +828,7 @@ void APNUM_intSub(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
 // Long multiplication
 
-static void APNUM_intMulLong(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
+static void APNUM_intMulLong(APNUM_pool* pool, APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
     APNUM_int* sum = out;
     vec_resize(sum->digits, a->digits->length + b->digits->length);
@@ -733,11 +870,11 @@ static void APNUM_intMulLong(APNUM_int* out, const APNUM_int* a, const APNUM_int
 
 
 
-void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
+void APNUM_intMul(APNUM_pool* pool, APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
     assert(out != a);
     assert(out != b);
-    APNUM_intMulLong(out, a, b);
+    APNUM_intMulLong(pool, out, a, b);
 }
 
 
@@ -755,7 +892,7 @@ void APNUM_intMul(APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 
 // https://en.wikipedia.org/wiki/Long_division
 
-void APNUM_intDivLong(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, const APNUM_int* D)
+void APNUM_intDivLong(APNUM_pool* pool, APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, const APNUM_int* D)
 {
     APNUM_int* Q = outQ;
     APNUM_int* R = outR;
@@ -786,7 +923,7 @@ void APNUM_intDivLong(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, cons
             {
                 break;
             }
-            APNUM_intSubInP(R, eb);
+            APNUM_intSubInP(pool, R, eb);
         }
         APNUM_intDightsInsertAt0(Q, er);
     }
@@ -804,7 +941,7 @@ out:
 // http://justinparrtech.com/JustinParr-Tech/an-algorithm-for-arbitrary-precision-integer-division/
 // https://www.youtube.com/watch?v=6bpLYxk9TUQ
 
-void APNUM_intDivSimple(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, const APNUM_int* D)
+void APNUM_intDivSimple(APNUM_pool* pool, APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, const APNUM_int* D)
 {
     APNUM_int* Q = outQ;
     APNUM_int* R = outR;
@@ -829,7 +966,7 @@ void APNUM_intDivSimple(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, co
     APNUM_int D_abs[1] = { D->digits[0] };
 
     APNUM_intDup(R, N_abs);
-    APNUM_int* RA = APNUM_intZero();
+    APNUM_int* RA = APNUM_intZero(pool);
     for (;;)
     {
         RA->neg = R->neg;
@@ -838,25 +975,25 @@ void APNUM_intDivSimple(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, co
         const APNUM_Digit* R_digits = R->digits->data + D->digits->length - 1;
         APNUM_intDigitsDivDigit(RA, R_digitsLen, R_digits, A);
 
-        APNUM_intAddInP(Q, RA);
+        APNUM_intAddInP(pool, Q, RA);
 
-        APNUM_intMul(R, Q, D_abs);
+        APNUM_intMul(pool, R, Q, D_abs);
         R->neg = true;
 
-        APNUM_intAddInP(R, N_abs);
+        APNUM_intAddInP(pool, R, N_abs);
         if (APNUM_intCmpAbs(R, D) < 0)
         {
             if (R->neg)
             {
                 RA->neg = true;
                 APNUM_intDigitsByU32(RA, 1);
-                APNUM_intAddInP(Q, RA);
-                APNUM_intAddInP(R, D_abs);
+                APNUM_intAddInP(pool, Q, RA);
+                APNUM_intAddInP(pool, R, D_abs);
             }
             break;
         }
     }
-    APNUM_intFree(RA);
+    APNUM_intFree(pool, RA);
 out:
     Q->neg = N->neg ^ D->neg;
     R->neg = N->neg;
@@ -873,13 +1010,13 @@ out:
 
 
 
-void APNUM_intDiv(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, const APNUM_int* D)
+void APNUM_intDiv(APNUM_pool* pool, APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, const APNUM_int* D)
 {
     assert(outQ != N);
     assert(outQ != D);
     assert(outR != N);
     assert(outR != D);
-    APNUM_intDivSimple(outQ, outR, N, D);
+    APNUM_intDivSimple(pool, outQ, outR, N, D);
 }
 
 
@@ -893,23 +1030,7 @@ void APNUM_intDiv(APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, const AP
 
 
 
-int APNUM_intCmp(const APNUM_int* a, const APNUM_int* b)
-{
-    if (!a->neg && b->neg)
-    {
-        return 1;
-    }
-    else if (a->neg && !b->neg)
-    {
-        return -1;
-    }
-    int r = 1;
-    if (a->neg && b->neg)
-    {
-        r = -1;
-    }
-    return APNUM_intCmpAbs(a, b) * r;
-}
+
 
 
 
