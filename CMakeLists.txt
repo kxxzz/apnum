@@ -39,13 +39,9 @@ set (CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -DDEBUG")
 
 
 
-include_directories (imp)
 include_directories (imp/vec)
 
 file (GLOB IMP_SRC_FILES
-    imp/threads.h
-    imp/threads_win32.h
-    imp/threads_posix.h
     imp/vec/vec.h
     imp/vec/vec.c
     )
