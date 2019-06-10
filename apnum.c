@@ -32,8 +32,8 @@
 
 
 
-typedef u32 APNUM_Digit;
-typedef s64 APNUM_Wigit;
+typedef u8 APNUM_Digit;
+typedef u64 APNUM_Wigit;
 typedef vec_t(APNUM_Digit) APNUM_DigitVec;
 
 
@@ -546,10 +546,6 @@ bool APNUM_intIsZero(APNUM_int* x)
 
 void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
 {
-    u32 alen = a->digits->length;
-    u32 blen = b->digits->length;
-    u32 len = max(alen, blen);
-
     bool outNeg = false;
     if (a->neg && b->neg)
     {
@@ -563,44 +559,81 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
     {
         outNeg = APNUM_intCmpAbs(a, b) < 0;
     }
-    s8 signA = (a->neg ^ outNeg) ? -1 : 1;
-    s8 signB = (b->neg ^ outNeg) ? -1 : 1;
+
+    u32 len = max(a->digits->length, b->digits->length);
+    vec_reserve(a->digits, len);
+
+    if (a->neg == b->neg)
+    {
+        APNUM_Wigit e = 0;
+        bool carry = false;
+        for (u32 i = 0; i < len; ++i)
+        {
+            APNUM_Wigit ea = (i < a->digits->length) ? a->digits->data[i] : 0;
+            APNUM_Wigit eb = (i < b->digits->length) ? b->digits->data[i] : 0;
+            e = e + ea + eb;
+            if (e >= APNUM_Digit_Base)
+            {
+                e -= APNUM_Digit_Base;
+                carry = true;
+            }
+            else
+            {
+                carry = false;
+            }
+            assert(e < APNUM_Digit_Base);
+            a->digits->data[i] = (APNUM_Digit)e;
+            e = carry ? 1 : 0;
+        }
+        if (carry)
+        {
+            vec_resize(a->digits, len + 1);
+            a->digits->data[len] = 1;
+        }
+        else
+        {
+            vec_resize(a->digits, len);
+        }
+    }
+    else
+    {
+        const APNUM_int *m, *s;
+        if (APNUM_intCmpAbs(a, b) >= 0)
+        {
+            m = a;
+            s = b;
+        }
+        else
+        {
+            m = b;
+            s = a;
+        }
+        APNUM_Wigit e = 0;
+        bool carry = false;
+        for (u32 i = 0; i < len; ++i)
+        {
+            APNUM_Wigit em = (i < m->digits->length) ? m->digits->data[i] : 0;
+            APNUM_Wigit es = (i < s->digits->length) ? s->digits->data[i] : 0;
+            e = e + em;
+            es = es + (carry ? 1 : 0);
+            if (e < es)
+            {
+                e += APNUM_Digit_Base;
+                carry = true;
+            }
+            else
+            {
+                carry = false;
+            }
+            assert(e >= es);
+            e -= es;
+            assert(e < APNUM_Digit_Base);
+            a->digits->data[i] = (APNUM_Digit)e;
+        }
+        assert(!carry);
+        vec_resize(a->digits, len);
+    }
     a->neg = outNeg;
-
-    vec_resize(a->digits, len);
-    APNUM_Wigit e = 0;
-    s8 carry = 0;
-    for (u32 i = 0; i < len; ++i)
-    {
-        APNUM_Wigit ea = (i < alen) ? a->digits->data[i] : 0;
-        APNUM_Wigit eb = (i < blen) ? b->digits->data[i] : 0;
-        ea = ea * signA;
-        eb = eb * signB;
-        e = ea + eb + carry;
-
-        if (e < 0)
-        {
-            e += APNUM_Digit_Base;
-            carry = -1;
-        }
-        else
-        if (e >= APNUM_Digit_Base)
-        {
-            e -= APNUM_Digit_Base;
-            carry = 1;
-        }
-        else
-        {
-            carry = 0;
-        }
-        assert(e < APNUM_Digit_Base);
-        a->digits->data[i] = (APNUM_Digit)e;
-    }
-    assert(carry >= 0);
-    if (carry > 0)
-    {
-        vec_push(a->digits, 1);
-    }
     APNUM_intTruncate(a);
 }
 
