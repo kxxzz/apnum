@@ -80,15 +80,15 @@ typedef struct APNUM_pool
     APNUM_intPtrVec freeIntegers[1];
 } APNUM_pool;
 
-APNUM_pool* APNUM_poolNew(void)
+APNUM_pool_t APNUM_poolNew(void)
 {
-    APNUM_pool* pool = zalloc(sizeof(APNUM_pool));
+    APNUM_pool_t pool = zalloc(sizeof(APNUM_pool));
     return pool;
 }
 
 static void APNUM_intFreeMem(APNUM_int* x);
 
-void APNUM_poolFree(APNUM_pool* pool)
+void APNUM_poolFree(APNUM_pool_t pool)
 {
     vec_free(pool->freeIntegers);
     for (u32 i = 0; i < pool->integers->length; ++i)
@@ -134,7 +134,7 @@ static void APNUM_intFreeMem(APNUM_int* x)
 
 
 
-APNUM_int* APNUM_intZero(APNUM_pool* pool)
+APNUM_int* APNUM_intZero(APNUM_pool_t pool)
 {
     if (pool->freeIntegers->length > 0)
     {
@@ -151,7 +151,7 @@ APNUM_int* APNUM_intZero(APNUM_pool* pool)
     }
 }
 
-void APNUM_intFree(APNUM_pool* pool, APNUM_int* x)
+void APNUM_intFree(APNUM_pool_t pool, APNUM_int* x)
 {
     vec_push(pool->freeIntegers, x);
 }
@@ -421,7 +421,7 @@ int APNUM_intCmp(const APNUM_int* a, const APNUM_int* b)
 
 
 
-static bool APNUM_intFromStrWithHead(APNUM_pool* pool, APNUM_int* out, u32 base, const char* str, u32 headLen)
+static bool APNUM_intFromStrWithHead(APNUM_pool_t pool, APNUM_int* out, u32 base, const char* str, u32 headLen)
 {
     if (base > APNUM_StrChar_Base_MAX)
     {
@@ -492,7 +492,7 @@ static bool APNUM_intFromStrWithHead(APNUM_pool* pool, APNUM_int* out, u32 base,
 
 static u32 APNUM_intToStrWithHead
 (
-    APNUM_pool* pool, const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize, u32 headLen, const char* head
+    APNUM_pool_t pool, const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize, u32 headLen, const char* head
 )
 {
     static const char charTable[] = "0123456789abcdefghijklmnopqrstuvwxyz";
@@ -575,19 +575,19 @@ out:
 
 
 
-bool APNUM_intFromStr(APNUM_pool* pool, APNUM_int* out, u32 base, const char* str)
+bool APNUM_intFromStr(APNUM_pool_t pool, APNUM_int* out, u32 base, const char* str)
 {
     return APNUM_intFromStrWithHead(pool, out, base, str, 0);
 }
 
 
-u32 APNUM_intToStr(APNUM_pool* pool, const APNUM_int* x, u32 base, char* strBuf, u32 strBufSize)
+u32 APNUM_intToStr(APNUM_pool_t pool, const APNUM_int* x, u32 base, char* strBuf, u32 strBufSize)
 {
     return APNUM_intToStrWithHead(pool, x, base, strBuf, strBufSize, 0, NULL);
 }
 
 
-bool APNUM_intFromStrWithBaseFmt(APNUM_pool* pool, APNUM_int* out, const char* str)
+bool APNUM_intFromStrWithBaseFmt(APNUM_pool_t pool, APNUM_int* out, const char* str)
 {
     u32 base = 10;
     u32 headLen = 0;
@@ -621,7 +621,7 @@ bool APNUM_intFromStrWithBaseFmt(APNUM_pool* pool, APNUM_int* out, const char* s
 
 u32 APNUM_intToStrWithBaseFmt
 (
-    APNUM_pool* pool, const APNUM_int* x, APNUM_int_StrBaseFmtType baseFmt, char* strBuf, u32 strBufSize
+    APNUM_pool_t pool, const APNUM_int* x, APNUM_int_StrBaseFmtType baseFmt, char* strBuf, u32 strBufSize
 )
 {
     u32 base = 10;
@@ -684,7 +684,7 @@ u32 APNUM_intToStrWithBaseFmt
 
 
 
-void APNUM_intAddInP(APNUM_pool* pool, APNUM_int* a, const APNUM_int* b)
+void APNUM_intAddInP(APNUM_pool_t pool, APNUM_int* a, const APNUM_int* b)
 {
     bool outNeg = false;
     if (a->neg && b->neg)
@@ -777,7 +777,7 @@ void APNUM_intAddInP(APNUM_pool* pool, APNUM_int* a, const APNUM_int* b)
 }
 
 
-void APNUM_intSubInP(APNUM_pool* pool, APNUM_int* a, const APNUM_int* b)
+void APNUM_intSubInP(APNUM_pool_t pool, APNUM_int* a, const APNUM_int* b)
 {
     APNUM_int negb[1] = { 0 };
     negb->digits[0] = b->digits[0];
@@ -797,7 +797,7 @@ void APNUM_intSubInP(APNUM_pool* pool, APNUM_int* a, const APNUM_int* b)
 
 
 
-void APNUM_intAdd(APNUM_pool* pool, APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
+void APNUM_intAdd(APNUM_pool_t pool, APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
     assert(out != a);
     assert(out != b);
@@ -806,7 +806,7 @@ void APNUM_intAdd(APNUM_pool* pool, APNUM_int* out, const APNUM_int* a, const AP
 }
 
 
-void APNUM_intSub(APNUM_pool* pool, APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
+void APNUM_intSub(APNUM_pool_t pool, APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
     assert(out != a);
     assert(out != b);
@@ -828,7 +828,7 @@ void APNUM_intSub(APNUM_pool* pool, APNUM_int* out, const APNUM_int* a, const AP
 
 // Long multiplication
 
-static void APNUM_intMulLong(APNUM_pool* pool, APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
+static void APNUM_intMulLong(APNUM_pool_t pool, APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
     APNUM_int* sum = out;
     vec_resize(sum->digits, a->digits->length + b->digits->length);
@@ -870,7 +870,7 @@ static void APNUM_intMulLong(APNUM_pool* pool, APNUM_int* out, const APNUM_int* 
 
 
 
-void APNUM_intMul(APNUM_pool* pool, APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
+void APNUM_intMul(APNUM_pool_t pool, APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
     assert(out != a);
     assert(out != b);
@@ -892,7 +892,7 @@ void APNUM_intMul(APNUM_pool* pool, APNUM_int* out, const APNUM_int* a, const AP
 
 // https://en.wikipedia.org/wiki/Long_division
 
-void APNUM_intDivLong(APNUM_pool* pool, APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, const APNUM_int* D)
+void APNUM_intDivLong(APNUM_pool_t pool, APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, const APNUM_int* D)
 {
     APNUM_int* Q = outQ;
     APNUM_int* R = outR;
@@ -941,7 +941,7 @@ out:
 // http://justinparrtech.com/JustinParr-Tech/an-algorithm-for-arbitrary-precision-integer-division/
 // https://www.youtube.com/watch?v=6bpLYxk9TUQ
 
-void APNUM_intDivSimple(APNUM_pool* pool, APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, const APNUM_int* D)
+void APNUM_intDivSimple(APNUM_pool_t pool, APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, const APNUM_int* D)
 {
     APNUM_int* Q = outQ;
     APNUM_int* R = outR;
@@ -1010,7 +1010,7 @@ out:
 
 
 
-void APNUM_intDiv(APNUM_pool* pool, APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, const APNUM_int* D)
+void APNUM_intDiv(APNUM_pool_t pool, APNUM_int* outQ, APNUM_int* outR, const APNUM_int* N, const APNUM_int* D)
 {
     assert(outQ != N);
     assert(outQ != D);

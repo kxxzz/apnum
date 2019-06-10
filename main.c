@@ -27,7 +27,7 @@ static void test(void)
     bool r;
     u32 n;
 
-    APNUM_pool* pool = APNUM_poolNew();
+    APNUM_pool_t pool = APNUM_poolNew();
     {
         APNUM_int* a = APNUM_intZero(pool);
         APNUM_int* b = APNUM_intZero(pool);
