@@ -564,7 +564,7 @@ void APNUM_intAddInP(APNUM_int* a, const APNUM_int* b)
     }
 
     u32 len = max(a->digits->length, b->digits->length);
-    vec_reserve(a->digits, len);
+    vec_reserve(a->digits, len + 1);
 
     if (a->neg == b->neg)
     {
