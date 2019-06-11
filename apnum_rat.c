@@ -60,6 +60,11 @@ void APNUM_ratDup(APNUM_rat* out, const APNUM_rat* a)
 
 }
 
+void APNUM_ratNegation(APNUM_rat* a)
+{
+
+}
+
 bool APNUM_ratIsZero(APNUM_rat* a)
 {
     return APNUM_intIsZero(a->numerator);
@@ -89,10 +94,7 @@ int APNUM_ratCmp(const APNUM_rat* a, const APNUM_rat* b)
 
 
 
-void APNUM_ratNegation(APNUM_rat* a)
-{
 
-}
 
 
 

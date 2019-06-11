@@ -278,6 +278,11 @@ void APNUM_intDup(APNUM_int* out, const APNUM_int* a)
     out->neg = a->neg;
 }
 
+void APNUM_intNegation(APNUM_int* a)
+{
+    a->neg = !a->neg;
+}
+
 bool APNUM_intIsZero(APNUM_int* a)
 {
     if (a->neg)
@@ -315,10 +320,7 @@ int APNUM_intCmp(const APNUM_int* a, const APNUM_int* b)
 
 
 
-void APNUM_intNegation(APNUM_int* a)
-{
-    a->neg = !a->neg;
-}
+
 
 
 
