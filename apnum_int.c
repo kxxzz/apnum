@@ -1,47 +1,10 @@
-#include "apnum.h"
-#include <malloc.h>
-#include <string.h>
-#include <math.h>
-#include <assert.h>
-
-#include <vec.h>
-
-
-
-
-#ifdef ARYLEN
-# undef ARYLEN
-#endif
-#define ARYLEN(a) (sizeof(a) / sizeof((a)[0]))
-
-
-
-#ifdef max
-# undef max
-#endif
-#ifdef min
-# undef min
-#endif
-#define max(a,b) ((a) > (b) ? (a) : (b))
-#define min(a,b) ((a) < (b) ? (a) : (b))
-
-
-
-
-#define zalloc(sz) calloc(1, sz)
-
-
-
+#include "apnum_a.h"
 
 
 
 
 
 #define APNUM_StrChar_Base_MAX 35u
-
-
-
-
 
 
 
@@ -61,83 +24,13 @@ typedef vec_t(APNUM_Digit) APNUM_DigitVec;
 
 
 
-
-
-
-
-
-
-
-
-
-
-typedef vec_t(APNUM_int*) APNUM_intPtrVec;
-typedef vec_t(APNUM_rat*) APNUM_ratPtrVec;
-
-
-typedef struct APNUM_pool
-{
-    APNUM_intPtrVec integers[1];
-    APNUM_intPtrVec freeIntegers[1];
-
-    APNUM_ratPtrVec rationals[1];
-    APNUM_ratPtrVec freeRationals[1];
-} APNUM_pool;
-
-APNUM_pool_t APNUM_poolNew(void)
-{
-    APNUM_pool_t pool = zalloc(sizeof(APNUM_pool));
-    return pool;
-}
-
-static void APNUM_intFreeMem(APNUM_int* a);
-static void APNUM_ratFreeMem(APNUM_rat* a);
-
-void APNUM_poolFree(APNUM_pool_t pool)
-{
-    vec_free(pool->freeRationals);
-    for (u32 i = 0; i < pool->rationals->length; ++i)
-    {
-        APNUM_ratFreeMem(pool->rationals->data[i]);
-    }
-    vec_free(pool->rationals);
-
-    vec_free(pool->freeIntegers);
-    for (u32 i = 0; i < pool->integers->length; ++i)
-    {
-        APNUM_intFreeMem(pool->integers->data[i]);
-    }
-    vec_free(pool->integers);
-
-    free(pool);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 typedef struct APNUM_int
 {
     APNUM_DigitVec digits[1];
     bool neg;
 } APNUM_int;
 
-static void APNUM_intFreeMem(APNUM_int* a)
+void APNUM_intFreeMem(APNUM_int* a)
 {
     vec_free(a->digits);
     free(a);
@@ -185,6 +78,33 @@ void APNUM_intFree(APNUM_pool_t pool, APNUM_int* a)
 
 
 
+void APNUM_intDigitsByU32(APNUM_int* a, u32 d)
+{
+    vec_resize(a->digits, 0);
+    while (d)
+    {
+        u32 r = d % APNUM_Digit_Base;
+        vec_push(a->digits, r);
+        d /= APNUM_Digit_Base;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -199,23 +119,6 @@ static void APNUM_intSwap(APNUM_int* a, APNUM_int* b)
 }
 
 
-
-
-
-static void APNUM_intDigitsByU32(APNUM_int* a, u32 d)
-{
-    vec_resize(a->digits, 0);
-    while (d)
-    {
-        u32 r = d % APNUM_Digit_Base;
-        vec_push(a->digits, r);
-        d /= APNUM_Digit_Base;
-    }
-}
-
-
-
-
 static void APNUM_intDightsInsertAt0(APNUM_int* a, APNUM_Digit d)
 {
     assert(d < APNUM_Digit_Base);
@@ -224,8 +127,6 @@ static void APNUM_intDightsInsertAt0(APNUM_int* a, APNUM_Digit d)
         vec_insert(a->digits, 0, d);
     }
 }
-
-
 
 
 static APNUM_Digit APNUM_intDigitsDivDigit(APNUM_int* Q, u32 N_digitsLen, const APNUM_Digit* N_digits, APNUM_Digit D)
@@ -1065,91 +966,6 @@ void APNUM_intDiv(APNUM_pool_t pool, APNUM_int* outQ, APNUM_int* outR, const APN
 
 
 
-
-
-typedef struct APNUM_rat
-{
-    APNUM_int* numerator;
-    APNUM_int* denominator;
-} APNUM_rat;
-
-static void APNUM_ratFreeMem(APNUM_rat* a)
-{
-    free(a);
-}
-
-
-
-
-
-
-
-
-
-
-APNUM_rat* APNUM_ratZero(APNUM_pool_t pool)
-{
-    if (pool->freeRationals->length > 0)
-    {
-        APNUM_rat* a = vec_last(pool->freeRationals);
-        vec_pop(pool->freeRationals);
-
-        a->numerator = APNUM_intZero(pool);
-        a->denominator = APNUM_intZero(pool);
-        vec_push(a->denominator->digits, 1);
-        return a;
-    }
-    else
-    {
-        APNUM_rat* a = zalloc(sizeof(*a));
-        return a;
-    }
-}
-
-void APNUM_ratFree(APNUM_pool_t pool, APNUM_rat* a)
-{
-    APNUM_intFree(pool, a->denominator);
-    APNUM_intFree(pool, a->numerator);
-    vec_push(pool->freeRationals, a);
-}
-
-
-
-
-
-
-
-void APNUM_ratDup(APNUM_rat* out, const APNUM_rat* a)
-{
-
-}
-
-bool APNUM_ratIsZero(APNUM_rat* a)
-{
-    return APNUM_intIsZero(a->numerator);
-}
-
-bool APNUM_ratIsNeg(APNUM_rat* a)
-{
-    // todo
-    return false;
-}
-
-int APNUM_ratCmp(const APNUM_rat* a, const APNUM_rat* b)
-{
-    // todo
-    return 0;
-}
-
-
-
-
-
-
-void APNUM_ratNegation(APNUM_rat* a)
-{
-
-}
 
 
 
