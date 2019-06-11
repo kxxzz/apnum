@@ -79,7 +79,7 @@ void APNUM_intFree(APNUM_pool_t pool, APNUM_int* a)
 
 
 
-static void APNUM_intSetNeg(APNUM_int* a, bool neg)
+void APNUM_intSetNeg(APNUM_int* a, bool neg)
 {
     a->neg = a->digits->length ? neg : false;
 }
@@ -262,7 +262,7 @@ void APNUM_intNeg(APNUM_int* a)
     APNUM_intSetNeg(a, !a->neg);
 }
 
-bool APNUM_intIsZero(APNUM_int* a)
+bool APNUM_intIsZero(const APNUM_int* a)
 {
     if (a->neg)
     {
@@ -271,7 +271,7 @@ bool APNUM_intIsZero(APNUM_int* a)
     return 0 == a->digits->length;
 }
 
-bool APNUM_intIsNeg(APNUM_int* a)
+bool APNUM_intIsNeg(const APNUM_int* a)
 {
     return a->neg;
 }

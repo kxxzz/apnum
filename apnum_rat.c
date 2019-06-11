@@ -155,8 +155,18 @@ void APNUM_ratFromS64(APNUM_pool_t pool, APNUM_rat* out, s64 n, s64 d)
 
 void APNUM_ratFromInt(APNUM_pool_t pool, APNUM_rat* out, const APNUM_int* n, const APNUM_int* d)
 {
-    //assert(!APNUM_intIsNeg(a->denominator));
-    //assert(!APNUM_intIsZero(a->denominator));
+    APNUM_int* gcd = APNUM_intNew(pool);
+    APNUM_int* r = APNUM_intNew(pool);
+    APNUM_intGCD(pool, gcd, n, d);
+    APNUM_intDiv(pool, out->numerator, r, n, gcd);
+    assert(APNUM_intIsZero(r));
+    APNUM_intDiv(pool, out->denominator, r, n, gcd);
+    assert(APNUM_intIsZero(r));
+    assert(!APNUM_intIsZero(out->denominator));
+    APNUM_intFree(pool, r);
+    APNUM_intFree(pool, gcd);
+    APNUM_intSetNeg(out->numerator, APNUM_intIsNeg(n) ^ APNUM_intIsNeg(d));
+    APNUM_intAbs(out->denominator);
 }
 
 

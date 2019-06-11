@@ -48,8 +48,8 @@ void APNUM_intFree(APNUM_pool_t pool, APNUM_int* a);
 void APNUM_intDup(APNUM_int* out, const APNUM_int* a);
 void APNUM_intAbs(APNUM_int* a);
 void APNUM_intNeg(APNUM_int* a);
-bool APNUM_intIsZero(APNUM_int* a);
-bool APNUM_intIsNeg(APNUM_int* a);
+bool APNUM_intIsZero(const APNUM_int* a);
+bool APNUM_intIsNeg(const APNUM_int* a);
 int APNUM_intCmp(const APNUM_int* a, const APNUM_int* b);
 
 

@@ -68,6 +68,11 @@ typedef struct APNUM_pool
 
 
 
+void APNUM_intSetNeg(APNUM_int* a, bool neg);
+
+
+
+
 
 
 
