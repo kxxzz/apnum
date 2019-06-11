@@ -264,6 +264,18 @@ static void test(void)
         APNUM_ratFree(pool, r);
     }
 
+    {
+        APNUM_rat* r = APNUM_ratNew(pool);
+        APNUM_ratFromStrWithBaseFmt(pool, r, "54/-0x11");
+
+        char buf[1024];
+        n = APNUM_ratToStrWithBaseFmt(pool, r, APNUM_int_StrBaseFmtType_HEX, buf, sizeof(buf));
+        buf[n] = 0;
+        printf("%s\n", buf);
+
+        APNUM_ratFree(pool, r);
+    }
+
     APNUM_poolFree(pool);
 }
 
