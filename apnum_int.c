@@ -347,31 +347,28 @@ void APNUM_intFromS32(APNUM_int* out, s32 i)
 
 
 
-static bool APNUM_intFromStrWithHead(APNUM_pool_t pool, APNUM_int* out, u32 base, const char* str, u32 headLen)
+static u32 APNUM_intFromStrWithHead(APNUM_pool_t pool, APNUM_int* out, u32 base, const char* str, u32 headLen)
 {
-    if (base > APNUM_StrChar_Base_MAX)
-    {
-        return false;
-    }
+    assert(base <= APNUM_StrChar_Base_MAX);
     APNUM_int* a = out;
     vec_resize(a->digits, 0);
 
-    u32 len = (u32)strlen(str);
-    if ((1 == len) && ('0' == str[0]))
-    {
-        a->neg = false;
-        return true;
-    }
     bool neg = '-' == str[0];
     u32 sp = (('-' == str[0]) || ('+' == str[0])) ? 1 : 0;
     sp += headLen;
-    for (u32 i = sp; i < len; ++i)
+    u32 len = 0;
+    for (u32 i = sp;; ++i)
     {
         APNUM_Digit d = APNUM_digitFromChar(str[i]);
         if (d > base)
         {
-            return false;
+            len = i;
+            break;
         }
+    }
+    if (sp == len)
+    {
+        return 0;
     }
     a->neg = neg;
     for (u32 i = sp; i < len; ++i)
@@ -407,7 +404,7 @@ static bool APNUM_intFromStrWithHead(APNUM_pool_t pool, APNUM_int* out, u32 base
 
     APNUM_intFree(pool, a1);
     APNUM_intFree(pool, b);
-    return true;
+    return len;
 }
 
 
@@ -422,14 +419,10 @@ static u32 APNUM_intToStrWithHead
 )
 {
     static const char charTable[] = "0123456789abcdefghijklmnopqrstuvwxyz";
-    if (base > APNUM_StrChar_Base_MAX)
-    {
-        return 0;
-    }
+    assert(base <= APNUM_StrChar_Base_MAX);
     if (0 == a->digits->length)
     {
         strBuf[0] = '0';
-        strBuf[1] = 0;
         return 1;
     }
     u32 sp = a->neg ? 1 : 0;
@@ -487,7 +480,6 @@ static u32 APNUM_intToStrWithHead
         u32 j = len - 1 - i;
         strBuf[i] = buf->data[j];
     }
-    strBuf[len] = 0;
 out:
     vec_free(buf);
     return len;
@@ -501,7 +493,7 @@ out:
 
 
 
-bool APNUM_intFromStr(APNUM_pool_t pool, APNUM_int* out, u32 base, const char* str)
+u32 APNUM_intFromStr(APNUM_pool_t pool, APNUM_int* out, u32 base, const char* str)
 {
     return APNUM_intFromStrWithHead(pool, out, base, str, 0);
 }
@@ -513,7 +505,7 @@ u32 APNUM_intToStr(APNUM_pool_t pool, const APNUM_int* a, u32 base, char* strBuf
 }
 
 
-bool APNUM_intFromStrWithBaseFmt(APNUM_pool_t pool, APNUM_int* out, const char* str)
+u32 APNUM_intFromStrWithBaseFmt(APNUM_pool_t pool, APNUM_int* out, const char* str)
 {
     u32 base = 10;
     u32 headLen = 0;
