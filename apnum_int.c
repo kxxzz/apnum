@@ -305,7 +305,18 @@ static void APNUM_intDigitsFromU32(APNUM_int* a, u32 u)
     vec_resize(a->digits, 0);
     while (u)
     {
-        u32 r = u % APNUM_Digit_Base;
+        APNUM_Digit r = u % APNUM_Digit_Base;
+        vec_push(a->digits, r);
+        u /= APNUM_Digit_Base;
+    }
+}
+
+static void APNUM_intDigitsFromU64(APNUM_int* a, u64 u)
+{
+    vec_resize(a->digits, 0);
+    while (u)
+    {
+        APNUM_Digit r = u % APNUM_Digit_Base;
         vec_push(a->digits, r);
         u /= APNUM_Digit_Base;
     }
@@ -325,7 +336,18 @@ void APNUM_intFromS32(APNUM_pool_t pool, APNUM_int* out, s32 i)
     out->neg = i < 0;
 }
 
+void APNUM_intFromU64(APNUM_pool_t pool, APNUM_int* out, u64 u, bool neg)
+{
+    APNUM_intDigitsFromU64(out, u);
+    out->neg = neg;
+}
 
+void APNUM_intFromS64(APNUM_pool_t pool, APNUM_int* out, s64 i)
+{
+    u64 u = (i >= 0) ? i : -i;
+    APNUM_intDigitsFromU64(out, u);
+    out->neg = i < 0;
+}
 
 
 

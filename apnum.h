@@ -54,6 +54,8 @@ int APNUM_intCmp(const APNUM_int* a, const APNUM_int* b);
 
 void APNUM_intFromU32(APNUM_pool_t pool, APNUM_int* out, u32 u, bool neg);
 void APNUM_intFromS32(APNUM_pool_t pool, APNUM_int* out, s32 i);
+void APNUM_intFromU64(APNUM_pool_t pool, APNUM_int* out, u64 u, bool neg);
+void APNUM_intFromS64(APNUM_pool_t pool, APNUM_int* out, s64 i);
 
 u32 APNUM_intFromStr(APNUM_pool_t pool, APNUM_int* out, u32 base, const char* str);
 u32 APNUM_intToStr(APNUM_pool_t pool, const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize);
@@ -89,6 +91,9 @@ int APNUM_ratCmp(const APNUM_rat* a, const APNUM_rat* b);
 
 void APNUM_ratFromU32(APNUM_pool_t pool, APNUM_rat* out, u32 n, u32 d, bool neg);
 void APNUM_ratFromS32(APNUM_pool_t pool, APNUM_rat* out, s32 n, s32 d);
+void APNUM_ratFromU64(APNUM_pool_t pool, APNUM_rat* out, u64 n, u64 d, bool neg);
+void APNUM_ratFromS64(APNUM_pool_t pool, APNUM_rat* out, s64 n, s64 d);
+
 void APNUM_ratFromInt(APNUM_pool_t pool, APNUM_rat* out, const APNUM_int* n, const APNUM_int* d);
 
 

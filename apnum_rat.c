@@ -115,7 +115,27 @@ void APNUM_ratFromS32(APNUM_pool_t pool, APNUM_rat* out, s32 n, s32 d)
     APNUM_intFree(pool, numerator);
 }
 
+void APNUM_ratFromU64(APNUM_pool_t pool, APNUM_rat* out, u64 n, u64 d, bool neg)
+{
+    APNUM_int* numerator = APNUM_intZero(pool);
+    APNUM_int* denominator = APNUM_intZero(pool);
+    APNUM_intFromU64(pool, numerator, n, neg);
+    APNUM_intFromU64(pool, denominator, d, false);
+    APNUM_ratFromInt(pool, out, numerator, denominator);
+    APNUM_intFree(pool, denominator);
+    APNUM_intFree(pool, numerator);
+}
 
+void APNUM_ratFromS64(APNUM_pool_t pool, APNUM_rat* out, s64 n, s64 d)
+{
+    APNUM_int* numerator = APNUM_intZero(pool);
+    APNUM_int* denominator = APNUM_intZero(pool);
+    APNUM_intFromS64(pool, numerator, n);
+    APNUM_intFromS64(pool, denominator, d);
+    APNUM_ratFromInt(pool, out, numerator, denominator);
+    APNUM_intFree(pool, denominator);
+    APNUM_intFree(pool, numerator);
+}
 
 
 
