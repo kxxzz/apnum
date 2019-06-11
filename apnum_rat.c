@@ -73,14 +73,24 @@ void APNUM_ratNeg(APNUM_rat* a)
     APNUM_intNeg(a->numerator);
 }
 
-bool APNUM_ratIsZero(APNUM_rat* a)
+bool APNUM_ratIsZero(const APNUM_rat* a)
 {
     return APNUM_intIsZero(a->numerator);
 }
 
-bool APNUM_ratIsNeg(APNUM_rat* a)
+bool APNUM_ratIsOne(const APNUM_rat* a)
+{
+    return APNUM_intIsOne(a->numerator) && APNUM_intIsOne(a->denominator);
+}
+
+bool APNUM_ratIsNeg(const APNUM_rat* a)
 {
     return APNUM_intIsNeg(a->numerator);
+}
+
+bool APNUM_ratIsInt(const APNUM_rat* a)
+{
+    return APNUM_intIsOne(a->denominator);
 }
 
 int APNUM_ratCmp(const APNUM_rat* a, const APNUM_rat* b)
@@ -164,7 +174,7 @@ void APNUM_ratFromInt(APNUM_pool_t pool, APNUM_rat* out, const APNUM_int* n, con
     APNUM_intGCD(pool, gcd, n, d);
     APNUM_intDiv(pool, out->numerator, r, n, gcd);
     assert(APNUM_intIsZero(r));
-    APNUM_intDiv(pool, out->denominator, r, n, gcd);
+    APNUM_intDiv(pool, out->denominator, r, d, gcd);
     assert(APNUM_intIsZero(r));
     assert(!APNUM_intIsZero(out->denominator));
     APNUM_intFree(pool, r);
@@ -186,6 +196,126 @@ void APNUM_ratFromInt(APNUM_pool_t pool, APNUM_rat* out, const APNUM_int* n, con
 
 
 
+
+
+
+
+
+
+u32 APNUM_ratFromStr(APNUM_pool_t pool, APNUM_rat* out, u32 base, const char* str)
+{
+    APNUM_int* numerator = APNUM_intNew(pool);
+    APNUM_int* denominator = APNUM_intNew(pool);
+    u32 nlen = APNUM_intFromStr(pool, numerator, base, str);
+    if (!nlen)
+    {
+        return 0;
+    }
+    if (str[nlen] != '/')
+    {
+        APNUM_intFromU32(pool, denominator, 1, 0);
+        APNUM_ratFromInt(pool, out, numerator, denominator);
+        APNUM_intFree(pool, denominator);
+        APNUM_intFree(pool, numerator);
+        return nlen;
+    }
+    u32 dlen = APNUM_intFromStr(pool, denominator, base, str + nlen + 1);
+    if (!dlen)
+    {
+        return 0;
+    }
+    APNUM_ratFromInt(pool, out, numerator, denominator);
+    APNUM_intFree(pool, denominator);
+    APNUM_intFree(pool, numerator);
+    return nlen + dlen + 1;
+}
+
+
+
+
+
+
+
+u32 APNUM_ratToStr(APNUM_pool_t pool, const APNUM_rat* a, u32 base, char* strBuf, u32 strBufSize)
+{
+    if (APNUM_intIsOne(a->denominator))
+    {
+        return APNUM_intToStr(pool, a->numerator, base, strBuf, strBufSize);
+    }
+    u32 nlen = APNUM_intToStr(pool, a->numerator, base, NULL, 0);
+    u32 dlen = APNUM_intToStr(pool, a->denominator, base, NULL, 0);
+    if (nlen + dlen + 1 >= strBufSize)
+    {
+        return nlen + dlen + 1;
+    }
+    u32 n;
+    n = APNUM_intToStr(pool, a->numerator, base, strBuf, strBufSize);
+    assert(n == nlen);
+    strBuf[nlen] = '/';
+    n = APNUM_intToStr(pool, a->denominator, base, strBuf + nlen + 1, strBufSize - nlen - 1);
+    assert(n == dlen);
+    return nlen + dlen + 1;
+}
+
+
+
+
+
+
+
+u32 APNUM_ratFromStrWithBaseFmt(APNUM_pool_t pool, APNUM_rat* out, const char* str)
+{
+    APNUM_int* numerator = APNUM_intNew(pool);
+    APNUM_int* denominator = APNUM_intNew(pool);
+    u32 nlen = APNUM_intFromStrWithBaseFmt(pool, numerator, str);
+    if (!nlen)
+    {
+        return 0;
+    }
+    if (str[nlen] != '/')
+    {
+        APNUM_intFromU32(pool, denominator, 1, 0);
+        APNUM_ratFromInt(pool, out, numerator, denominator);
+        APNUM_intFree(pool, denominator);
+        APNUM_intFree(pool, numerator);
+        return nlen;
+    }
+    u32 dlen = APNUM_intFromStrWithBaseFmt(pool, denominator, str + nlen + 1);
+    if (!dlen)
+    {
+        return 0;
+    }
+    APNUM_ratFromInt(pool, out, numerator, denominator);
+    APNUM_intFree(pool, denominator);
+    APNUM_intFree(pool, numerator);
+    return nlen + dlen + 1;
+}
+
+
+
+
+
+
+u32 APNUM_ratToStrWithBaseFmt(APNUM_pool_t pool, const APNUM_rat* a, APNUM_int_StrBaseFmtType baseFmt, char* strBuf, u32 strBufSize)
+{
+    if (APNUM_intIsOne(a->denominator))
+    {
+        return APNUM_intToStrWithBaseFmt(pool, a->numerator, baseFmt, strBuf, strBufSize);
+    }
+    u32 nlen = APNUM_intToStrWithBaseFmt(pool, a->numerator, baseFmt, NULL, 0);
+    u32 dlen = APNUM_intToStrWithBaseFmt(pool, a->denominator, baseFmt, NULL, 0);
+    if (nlen + dlen + 1 >= strBufSize)
+    {
+        return nlen + dlen + 1;
+    }
+    u32 n;
+    n = APNUM_intToStrWithBaseFmt(pool, a->numerator, baseFmt, strBuf, strBufSize);
+    assert(n == nlen);
+    strBuf[nlen] = '/';
+    n = APNUM_intToStrWithBaseFmt(pool, a->denominator, baseFmt, strBuf + nlen + 1, strBufSize - nlen - 1);
+    assert(n == dlen);
+    return nlen + dlen + 1;
+}
 
 
 

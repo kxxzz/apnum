@@ -280,6 +280,11 @@ bool APNUM_intIsZero(const APNUM_int* a)
     return 0 == a->digits->length;
 }
 
+bool APNUM_intIsOne(const APNUM_int* a)
+{
+    return (1 == a->digits->length) && (1 == a->digits->data[0]);
+}
+
 bool APNUM_intIsNeg(const APNUM_int* a)
 {
     return a->neg;
@@ -466,17 +471,26 @@ static u32 APNUM_intToStrWithHead
     assert(base <= APNUM_StrChar_Base_MAX);
     if (0 == a->digits->length)
     {
-        strBuf[0] = '0';
+        if (strBuf)
+        {
+            strBuf[0] = '0';
+        }
         return 1;
     }
     u32 sp = a->neg ? 1 : 0;
     if (a->neg)
     {
-        strBuf[0] = '-';
+        if (strBuf)
+        {
+            strBuf[0] = '-';
+        }
     }
     for (u32 i = 0; i < headLen; ++i)
     {
-        strBuf[sp + i] = head[i];
+        if (strBuf)
+        {
+            strBuf[sp + i] = head[i];
+        }
     }
     sp += headLen;
 
@@ -519,10 +533,13 @@ static u32 APNUM_intToStrWithHead
     {
         goto out;
     }
-    for (u32 i = sp; i < len; ++i)
+    if (strBuf)
     {
-        u32 j = len - 1 - i;
-        strBuf[i] = buf->data[j];
+        for (u32 i = sp; i < len; ++i)
+        {
+            u32 j = len - 1 - i;
+            strBuf[i] = buf->data[j];
+        }
     }
 out:
     vec_free(buf);

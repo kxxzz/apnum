@@ -49,6 +49,7 @@ void APNUM_intDup(APNUM_int* out, const APNUM_int* a);
 void APNUM_intAbs(APNUM_int* a);
 void APNUM_intNeg(APNUM_int* a);
 bool APNUM_intIsZero(const APNUM_int* a);
+bool APNUM_intIsOne(const APNUM_int* a);
 bool APNUM_intIsNeg(const APNUM_int* a);
 int APNUM_intCmp(const APNUM_int* a, const APNUM_int* b);
 
@@ -88,8 +89,10 @@ void APNUM_ratFree(APNUM_pool_t pool, APNUM_rat* a);
 void APNUM_ratDup(APNUM_rat* out, const APNUM_rat* a);
 void APNUM_ratAbs(APNUM_rat* a);
 void APNUM_ratNeg(APNUM_rat* a);
-bool APNUM_ratIsZero(APNUM_rat* a);
-bool APNUM_ratIsNeg(APNUM_rat* a);
+bool APNUM_ratIsZero(const APNUM_rat* a);
+bool APNUM_ratIsOne(const APNUM_rat* a);
+bool APNUM_ratIsNeg(const APNUM_rat* a);
+bool APNUM_ratIsInt(const APNUM_rat* a);
 int APNUM_ratCmp(const APNUM_rat* a, const APNUM_rat* b);
 
 
@@ -99,6 +102,15 @@ void APNUM_ratFromU64(APNUM_pool_t pool, APNUM_rat* out, u64 n, u64 d, bool neg)
 void APNUM_ratFromS64(APNUM_pool_t pool, APNUM_rat* out, s64 n, s64 d);
 
 void APNUM_ratFromInt(APNUM_pool_t pool, APNUM_rat* out, const APNUM_int* n, const APNUM_int* d);
+
+
+u32 APNUM_ratFromStr(APNUM_pool_t pool, APNUM_rat* out, u32 base, const char* str);
+u32 APNUM_ratToStr(APNUM_pool_t pool, const APNUM_rat* a, u32 base, char* strBuf, u32 strBufSize);
+
+u32 APNUM_ratFromStrWithBaseFmt(APNUM_pool_t pool, APNUM_rat* out, const char* str);
+u32 APNUM_ratToStrWithBaseFmt(APNUM_pool_t pool, const APNUM_rat* a, APNUM_int_StrBaseFmtType baseFmt, char* strBuf, u32 strBufSize);
+
+
 
 
 

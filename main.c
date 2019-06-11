@@ -245,8 +245,8 @@ static void test(void)
     }
 
     {
-        const char astr[] = "-54";
-        const char bstr[] = "-24";
+        const char astr[] = "54";
+        const char bstr[] = "-9";
         APNUM_int* a = APNUM_intNew(pool);
         n = APNUM_intFromStr(pool, a, 10, astr);
         assert((u32)strlen(astr) == n);
@@ -256,10 +256,10 @@ static void test(void)
         APNUM_rat* r = APNUM_ratNew(pool);
         APNUM_ratFromInt(pool, r, a, b);
 
-        //char buf[1024];
-        //n = APNUM_ratToStr(pool, r, 10, buf, sizeof(buf));
-        //buf[n] = 0;
-        //printf("%s\n", buf);
+        char buf[1024];
+        n = APNUM_ratToStr(pool, r, 10, buf, sizeof(buf));
+        buf[n] = 0;
+        printf("%s\n", buf);
 
         APNUM_intFree(pool, a);
         APNUM_intFree(pool, b);
