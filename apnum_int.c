@@ -54,6 +54,7 @@ APNUM_int* APNUM_intNew(APNUM_pool_t pool)
     else
     {
         APNUM_int* a = zalloc(sizeof(*a));
+        vec_push(pool->integers, a);
         return a;
     }
 }

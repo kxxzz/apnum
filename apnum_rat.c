@@ -35,6 +35,7 @@ APNUM_rat* APNUM_ratNew(APNUM_pool_t pool)
     else
     {
         APNUM_rat* a = zalloc(sizeof(*a));
+        vec_push(pool->rationals, a);
         return a;
     }
 }
