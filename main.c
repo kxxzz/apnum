@@ -81,6 +81,9 @@ static void test(void)
         APNUM_int* a = APNUM_intNew(pool);
         n = APNUM_intFromStr(pool, a, 16, astr);
         assert((u32)strlen(astr) == n);
+
+        u32 n0 = APNUM_intToStr(pool, a, 10, NULL, 0);
+
         char buf[1024];
         n = APNUM_intToStr(pool, a, 2, buf, sizeof(buf));
         buf[n] = 0;
@@ -89,6 +92,7 @@ static void test(void)
         buf[n] = 0;
         printf("%s\n", buf);
         n = APNUM_intToStr(pool, a, 10, buf, sizeof(buf));
+        assert(n0 == n);
         buf[n] = 0;
         printf("%s\n", buf);
         n = APNUM_intToStr(pool, a, 16, buf, sizeof(buf));
@@ -102,6 +106,9 @@ static void test(void)
         APNUM_int* a = APNUM_intNew(pool);
         n = APNUM_intFromStrWithBaseFmt(pool, a, astr);
         assert((u32)strlen(astr) == n);
+
+        u32 n0 = APNUM_intToStrWithBaseFmt(pool, a, APNUM_int_StrBaseFmtType_HEX, NULL, 0);
+
         char buf[1024];
         n = APNUM_intToStrWithBaseFmt(pool, a, APNUM_int_StrBaseFmtType_DEC, buf, sizeof(buf));
         buf[n] = 0;
@@ -113,6 +120,7 @@ static void test(void)
         buf[n] = 0;
         printf("%s\n", buf);
         n = APNUM_intToStrWithBaseFmt(pool, a, APNUM_int_StrBaseFmtType_HEX, buf, sizeof(buf));
+        assert(n0 == n);
         buf[n] = 0;
         printf("%s\n", buf);
         APNUM_intFree(pool, a);
