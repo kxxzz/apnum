@@ -30,7 +30,7 @@ APNUM_rat* APNUM_ratZero(APNUM_pool_t pool)
 
         a->numerator = APNUM_intZero(pool);
         a->denominator = APNUM_intZero(pool);
-        APNUM_intDigitsByU32(a->denominator, 1);
+        APNUM_intDigitsFromU32(a->denominator, 1);
         return a;
     }
     else

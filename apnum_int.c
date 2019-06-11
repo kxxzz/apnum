@@ -78,7 +78,7 @@ void APNUM_intFree(APNUM_pool_t pool, APNUM_int* a)
 
 
 
-void APNUM_intDigitsByU32(APNUM_int* a, u32 d)
+void APNUM_intDigitsFromU32(APNUM_int* a, u32 d)
 {
     vec_resize(a->digits, 0);
     while (d)
@@ -388,18 +388,18 @@ static bool APNUM_intFromStrWithHead(APNUM_pool_t pool, APNUM_int* out, u32 base
     APNUM_int* a1 = APNUM_intZero(pool);
 
     b->neg = a->neg;
-    APNUM_intDigitsByU32(b, APNUM_digitFromChar(str[sp]));
+    APNUM_intDigitsFromU32(b, APNUM_digitFromChar(str[sp]));
     APNUM_intAddInP(pool, a, b);
 
     for (u32 i = sp + 1; i < len; ++i)
     {
         b->neg = false;
-        APNUM_intDigitsByU32(b, base);
+        APNUM_intDigitsFromU32(b, base);
         APNUM_intMul(pool, a1, a, b);
         APNUM_intSwap(a, a1);
 
         b->neg = a->neg;
-        APNUM_intDigitsByU32(b, APNUM_digitFromChar(str[i]));
+        APNUM_intDigitsFromU32(b, APNUM_digitFromChar(str[i]));
         APNUM_intAddInP(pool, a, b);
     }
 
@@ -448,7 +448,7 @@ static u32 APNUM_intToStrWithHead
     APNUM_int* q1 = APNUM_intZero(pool);
     APNUM_int* r = APNUM_intZero(pool);
     APNUM_int* ibase = APNUM_intZero(pool);
-    APNUM_intDigitsByU32(ibase, base);
+    APNUM_intDigitsFromU32(ibase, base);
 
     vec_char buf[1] = { 0 };
     do 
@@ -910,7 +910,7 @@ void APNUM_intDivSimple(APNUM_pool_t pool, APNUM_int* outQ, APNUM_int* outR, con
             if (R->neg)
             {
                 RA->neg = true;
-                APNUM_intDigitsByU32(RA, 1);
+                APNUM_intDigitsFromU32(RA, 1);
                 APNUM_intAddInP(pool, Q, RA);
                 APNUM_intAddInP(pool, R, D_abs);
             }
