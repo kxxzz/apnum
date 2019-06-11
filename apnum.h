@@ -41,7 +41,7 @@ void APNUM_poolFree(APNUM_pool_t pool);
 
 typedef struct APNUM_int APNUM_int;
 
-APNUM_int* APNUM_intZero(APNUM_pool_t pool);
+APNUM_int* APNUM_intNew(APNUM_pool_t pool);
 void APNUM_intFree(APNUM_pool_t pool, APNUM_int* a);
 
 
@@ -78,7 +78,7 @@ void APNUM_intDiv(APNUM_pool_t pool, APNUM_int* outQ, APNUM_int* outR, const APN
 
 typedef struct APNUM_rat APNUM_rat;
 
-APNUM_rat* APNUM_ratZero(APNUM_pool_t pool);
+APNUM_rat* APNUM_ratNew(APNUM_pool_t pool);
 void APNUM_ratFree(APNUM_pool_t pool, APNUM_rat* a);
 
 
