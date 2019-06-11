@@ -77,40 +77,6 @@ void APNUM_intFree(APNUM_pool_t pool, APNUM_int* a)
 
 
 
-
-void APNUM_intDigitsFromU32(APNUM_int* a, u32 d)
-{
-    vec_resize(a->digits, 0);
-    while (d)
-    {
-        u32 r = d % APNUM_Digit_Base;
-        vec_push(a->digits, r);
-        d /= APNUM_Digit_Base;
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 static void APNUM_intSwap(APNUM_int* a, APNUM_int* b)
 {
     APNUM_int t = *a;
@@ -322,6 +288,42 @@ int APNUM_intCmp(const APNUM_int* a, const APNUM_int* b)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+static void APNUM_intDigitsFromU32(APNUM_int* a, u32 u)
+{
+    vec_resize(a->digits, 0);
+    while (u)
+    {
+        u32 r = u % APNUM_Digit_Base;
+        vec_push(a->digits, r);
+        u /= APNUM_Digit_Base;
+    }
+}
+
+
+void APNUM_intFromU32(APNUM_int* out, u32 u)
+{
+    APNUM_intDigitsFromU32(out, u);
+    out->neg = false;
+}
+
+void APNUM_intFromS32(APNUM_int* out, s32 i)
+{
+    u32 u = (i >= 0) ? i : -i;
+    APNUM_intDigitsFromU32(out, u);
+    out->neg = i < 0;
+}
 
 
 

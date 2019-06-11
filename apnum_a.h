@@ -68,7 +68,6 @@ typedef struct APNUM_pool
 
 
 
-void APNUM_intDigitsFromU32(APNUM_int* a, u32 d);
 
 
 

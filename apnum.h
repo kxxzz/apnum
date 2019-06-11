@@ -52,6 +52,8 @@ bool APNUM_intIsNeg(APNUM_int* a);
 int APNUM_intCmp(const APNUM_int* a, const APNUM_int* b);
 
 
+void APNUM_intFromU32(APNUM_int* out, u32 u);
+void APNUM_intFromS32(APNUM_int* out, s32 i);
 
 bool APNUM_intFromStr(APNUM_pool_t pool, APNUM_int* out, u32 base, const char* str);
 u32 APNUM_intToStr(APNUM_pool_t pool, const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize);
