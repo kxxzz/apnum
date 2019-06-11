@@ -77,6 +77,13 @@ void APNUM_intFree(APNUM_pool_t pool, APNUM_int* a)
 
 
 
+
+static void APNUM_intSetNeg(APNUM_int* a, bool neg)
+{
+    a->neg = a->digits->length ? neg : false;
+}
+
+
 static void APNUM_intSwap(APNUM_int* a, APNUM_int* b)
 {
     APNUM_int t = *a;
@@ -251,7 +258,7 @@ void APNUM_intAbs(APNUM_int* a)
 
 void APNUM_intNeg(APNUM_int* a)
 {
-    a->neg = a->digits->length ? !a->neg : false;
+    APNUM_intSetNeg(a, !a->neg);
 }
 
 bool APNUM_intIsZero(APNUM_int* a)
@@ -331,27 +338,27 @@ static void APNUM_intDigitsFromU64(APNUM_int* a, u64 u)
 void APNUM_intFromU32(APNUM_pool_t pool, APNUM_int* out, u32 u, bool neg)
 {
     APNUM_intDigitsFromU32(out, u);
-    out->neg = out->digits->length ? neg : false;
+    APNUM_intSetNeg(out, neg);
 }
 
 void APNUM_intFromS32(APNUM_pool_t pool, APNUM_int* out, s32 i)
 {
     u32 u = (i >= 0) ? i : -i;
     APNUM_intDigitsFromU32(out, u);
-    out->neg = out->digits->length ? (i < 0) : false;
+    APNUM_intSetNeg(out, i < 0);
 }
 
 void APNUM_intFromU64(APNUM_pool_t pool, APNUM_int* out, u64 u, bool neg)
 {
     APNUM_intDigitsFromU64(out, u);
-    out->neg = out->digits->length ? neg : false;
+    APNUM_intSetNeg(out, neg);
 }
 
 void APNUM_intFromS64(APNUM_pool_t pool, APNUM_int* out, s64 i)
 {
     u64 u = (i >= 0) ? i : -i;
     APNUM_intDigitsFromU64(out, u);
-    out->neg = out->digits->length ? (i < 0) : false;
+    APNUM_intSetNeg(out, i < 0);
 }
 
 
@@ -714,7 +721,7 @@ void APNUM_intAddInP(APNUM_pool_t pool, APNUM_int* a, const APNUM_int* b)
         assert(!carry);
         vec_resize(a->digits, len);
     }
-    a->neg = a->digits->length ? outNeg : false;
+    APNUM_intSetNeg(a, outNeg);
     APNUM_intTruncate(a);
 }
 
@@ -724,7 +731,7 @@ void APNUM_intSubInP(APNUM_pool_t pool, APNUM_int* a, const APNUM_int* b)
 {
     APNUM_int negb[1] = { 0 };
     negb->digits[0] = b->digits[0];
-    negb->neg = a->digits->length ? !b->neg : false;
+    APNUM_intSetNeg(negb, !b->neg);
     APNUM_intAddInP(pool, a, negb);
 }
 
@@ -817,7 +824,7 @@ static void APNUM_intMulLong(APNUM_pool_t pool, APNUM_int* out, const APNUM_int*
         sum->digits->data[i + a->digits->length] = (APNUM_Digit)carry;
     }
     APNUM_intTruncate(sum);
-    sum->neg = sum->digits->length ? (a->neg ^ b->neg) : false;
+    APNUM_intSetNeg(sum, a->neg ^ b->neg);
 }
 
 
@@ -888,8 +895,8 @@ void APNUM_intDivLong(APNUM_pool_t pool, APNUM_int* outQ, APNUM_int* outR, const
         APNUM_intDightsInsertAt0(Q, er);
     }
 out:
-    Q->neg = Q->digits->length ? (N->neg ^ D->neg) : false;
-    R->neg = R->digits->length ? N->neg : false;
+    APNUM_intSetNeg(Q, N->neg ^ D->neg);
+    APNUM_intSetNeg(R, N->neg);
 }
 
 
@@ -956,8 +963,8 @@ void APNUM_intDivSimple(APNUM_pool_t pool, APNUM_int* outQ, APNUM_int* outR, con
     }
     APNUM_intFree(pool, RA);
 out:
-    Q->neg = Q->digits->length ? (N->neg ^ D->neg) : false;
-    R->neg = R->digits->length ? N->neg : false;
+    APNUM_intSetNeg(Q, N->neg ^ D->neg);
+    APNUM_intSetNeg(R, N->neg);
 }
 
 
