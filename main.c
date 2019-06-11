@@ -253,24 +253,14 @@ static void test(void)
     }
 
     {
-        const char astr[] = "54";
-        const char bstr[] = "-9";
-        APNUM_int* a = APNUM_intNew(pool);
-        n = APNUM_intFromStr(pool, a, 10, astr);
-        assert((u32)strlen(astr) == n);
-        APNUM_int* b = APNUM_intNew(pool);
-        n = APNUM_intFromStr(pool, b, 10, bstr);
-        assert((u32)strlen(bstr) == n);
         APNUM_rat* r = APNUM_ratNew(pool);
-        APNUM_ratFromInt(pool, r, a, b);
+        APNUM_ratFromStr(pool, r, 10, "54/-24");
 
         char buf[1024];
         n = APNUM_ratToStr(pool, r, 10, buf, sizeof(buf));
         buf[n] = 0;
         printf("%s\n", buf);
 
-        APNUM_intFree(pool, a);
-        APNUM_intFree(pool, b);
         APNUM_ratFree(pool, r);
     }
 
