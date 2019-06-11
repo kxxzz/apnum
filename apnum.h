@@ -46,7 +46,8 @@ void APNUM_intFree(APNUM_pool_t pool, APNUM_int* a);
 
 
 void APNUM_intDup(APNUM_int* out, const APNUM_int* a);
-void APNUM_intNegation(APNUM_int* a);
+void APNUM_intAbs(APNUM_int* a);
+void APNUM_intNeg(APNUM_int* a);
 bool APNUM_intIsZero(APNUM_int* a);
 bool APNUM_intIsNeg(APNUM_int* a);
 int APNUM_intCmp(const APNUM_int* a, const APNUM_int* b);
@@ -66,6 +67,8 @@ u32 APNUM_intToStrWithBaseFmt(APNUM_pool_t pool, const APNUM_int* a, APNUM_int_S
 
 void APNUM_intAddInP(APNUM_pool_t pool, APNUM_int* a, const APNUM_int* b);
 void APNUM_intSubInP(APNUM_pool_t pool, APNUM_int* a, const APNUM_int* b);
+void APNUM_intMulInP(APNUM_pool_t pool, APNUM_int* a, const APNUM_int* b);
+void APNUM_intDivInP(APNUM_pool_t pool, APNUM_int* a, const APNUM_int* b, APNUM_int* r);
 
 void APNUM_intAdd(APNUM_pool_t pool, APNUM_int* out, const APNUM_int* a, const APNUM_int* b);
 void APNUM_intSub(APNUM_pool_t pool, APNUM_int* out, const APNUM_int* a, const APNUM_int* b);
@@ -83,7 +86,8 @@ void APNUM_ratFree(APNUM_pool_t pool, APNUM_rat* a);
 
 
 void APNUM_ratDup(APNUM_rat* out, const APNUM_rat* a);
-void APNUM_ratNegation(APNUM_rat* a);
+void APNUM_ratAbs(APNUM_rat* a);
+void APNUM_ratNeg(APNUM_rat* a);
 bool APNUM_ratIsZero(APNUM_rat* a);
 bool APNUM_ratIsNeg(APNUM_rat* a);
 int APNUM_ratCmp(const APNUM_rat* a, const APNUM_rat* b);

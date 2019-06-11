@@ -223,8 +223,8 @@ static void test(void)
     }
 
     {
-        const char astr[] = "54";
-        const char bstr[] = "24";
+        const char astr[] = "-54";
+        const char bstr[] = "-24";
         APNUM_int* a = APNUM_intNew(pool);
         n = APNUM_intFromStr(pool, a, 10, astr);
         assert((u32)strlen(astr) == n);
