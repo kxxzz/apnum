@@ -136,9 +136,9 @@ static void test(void)
 
     {
         APNUM_int* a = APNUM_intZero(pool);
-        APNUM_intFromS32(a, -56789);
+        APNUM_intFromS32(pool, a, -56789);
         APNUM_int* b = APNUM_intZero(pool);
-        APNUM_intFromS32(b, 92345);
+        APNUM_intFromS32(pool, b, 92345);
         APNUM_int* c = APNUM_intZero(pool);
         APNUM_intSub(pool, c, a, b);
 

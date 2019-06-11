@@ -312,13 +312,13 @@ static void APNUM_intDigitsFromU32(APNUM_int* a, u32 u)
 }
 
 
-void APNUM_intFromU32(APNUM_int* out, u32 u, bool neg)
+void APNUM_intFromU32(APNUM_pool_t pool, APNUM_int* out, u32 u, bool neg)
 {
     APNUM_intDigitsFromU32(out, u);
     out->neg = neg;
 }
 
-void APNUM_intFromS32(APNUM_int* out, s32 i)
+void APNUM_intFromS32(APNUM_pool_t pool, APNUM_int* out, s32 i)
 {
     u32 u = (i >= 0) ? i : -i;
     APNUM_intDigitsFromU32(out, u);
@@ -537,10 +537,7 @@ u32 APNUM_intFromStrWithBaseFmt(APNUM_pool_t pool, APNUM_int* out, const char* s
 }
 
 
-u32 APNUM_intToStrWithBaseFmt
-(
-    APNUM_pool_t pool, const APNUM_int* a, APNUM_int_StrBaseFmtType baseFmt, char* strBuf, u32 strBufSize
-)
+u32 APNUM_intToStrWithBaseFmt(APNUM_pool_t pool, const APNUM_int* a, APNUM_int_StrBaseFmtType baseFmt, char* strBuf, u32 strBufSize)
 {
     u32 base = 10;
     u32 headLen = 0;
