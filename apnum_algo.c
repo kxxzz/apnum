@@ -6,10 +6,21 @@
 
 
 
+void APNUM_intGCD_Euclid(APNUM_pool_t pool, APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
+{
+
+}
+
+
+
+
+
+
+
 
 void APNUM_intGCD(APNUM_pool_t pool, APNUM_int* out, const APNUM_int* a, const APNUM_int* b)
 {
-
+    APNUM_intGCD_Euclid(pool, out, a, b);
 }
 
 

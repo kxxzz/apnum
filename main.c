@@ -222,6 +222,29 @@ static void test(void)
         APNUM_intFree(pool, d);
     }
 
+    {
+        const char astr[] = "54";
+        const char bstr[] = "24";
+        APNUM_int* a = APNUM_intNew(pool);
+        n = APNUM_intFromStr(pool, a, 10, astr);
+        assert((u32)strlen(astr) == n);
+        APNUM_int* b = APNUM_intNew(pool);
+        n = APNUM_intFromStr(pool, b, 10, bstr);
+        assert((u32)strlen(bstr) == n);
+        APNUM_int* c = APNUM_intNew(pool);
+        APNUM_intGCD(pool, c, a, b);
+
+        char buf[1024];
+        n = APNUM_intToStr(pool, c, 10, buf, sizeof(buf));
+        buf[n] = 0;
+        printf("%s\n", buf);
+
+        APNUM_intFree(pool, a);
+        APNUM_intFree(pool, b);
+        APNUM_intFree(pool, c);
+    }
+
+
     APNUM_poolFree(pool);
 }
 
