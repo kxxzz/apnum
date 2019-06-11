@@ -72,12 +72,16 @@ typedef vec_t(APNUM_Digit) APNUM_DigitVec;
 
 
 typedef vec_t(APNUM_int*) APNUM_intPtrVec;
+typedef vec_t(APNUM_rat*) APNUM_ratPtrVec;
 
 
 typedef struct APNUM_pool
 {
     APNUM_intPtrVec integers[1];
     APNUM_intPtrVec freeIntegers[1];
+
+    APNUM_ratPtrVec rationals[1];
+    APNUM_ratPtrVec freeRationals[1];
 } APNUM_pool;
 
 APNUM_pool_t APNUM_poolNew(void)
@@ -86,16 +90,25 @@ APNUM_pool_t APNUM_poolNew(void)
     return pool;
 }
 
-static void APNUM_intFreeMem(APNUM_int* x);
+static void APNUM_intFreeMem(APNUM_int* a);
+static void APNUM_ratFreeMem(APNUM_rat* a);
 
 void APNUM_poolFree(APNUM_pool_t pool)
 {
+    vec_free(pool->freeRationals);
+    for (u32 i = 0; i < pool->rationals->length; ++i)
+    {
+        APNUM_ratFreeMem(pool->rationals->data[i]);
+    }
+    vec_free(pool->rationals);
+
     vec_free(pool->freeIntegers);
     for (u32 i = 0; i < pool->integers->length; ++i)
     {
         APNUM_intFreeMem(pool->integers->data[i]);
     }
     vec_free(pool->integers);
+
     free(pool);
 }
 
@@ -124,10 +137,10 @@ typedef struct APNUM_int
     bool neg;
 } APNUM_int;
 
-static void APNUM_intFreeMem(APNUM_int* x)
+static void APNUM_intFreeMem(APNUM_int* a)
 {
-    vec_free(x->digits);
-    free(x);
+    vec_free(a->digits);
+    free(a);
 }
 
 
@@ -140,6 +153,7 @@ APNUM_int* APNUM_intZero(APNUM_pool_t pool)
     {
         APNUM_int* a = vec_last(pool->freeIntegers);
         vec_pop(pool->freeIntegers);
+
         vec_resize(a->digits, 0);
         a->neg = false;
         return a;
@@ -151,9 +165,9 @@ APNUM_int* APNUM_intZero(APNUM_pool_t pool)
     }
 }
 
-void APNUM_intFree(APNUM_pool_t pool, APNUM_int* x)
+void APNUM_intFree(APNUM_pool_t pool, APNUM_int* a)
 {
-    vec_push(pool->freeIntegers, x);
+    vec_push(pool->freeIntegers, a);
 }
 
 
@@ -188,26 +202,26 @@ static void APNUM_intSwap(APNUM_int* a, APNUM_int* b)
 
 
 
-static void APNUM_intDigitsByU32(APNUM_int* a, u32 x)
+static void APNUM_intDigitsByU32(APNUM_int* a, u32 d)
 {
     vec_resize(a->digits, 0);
-    while (x)
+    while (d)
     {
-        u32 r = x % APNUM_Digit_Base;
+        u32 r = d % APNUM_Digit_Base;
         vec_push(a->digits, r);
-        x /= APNUM_Digit_Base;
+        d /= APNUM_Digit_Base;
     }
 }
 
 
 
 
-static void APNUM_intDightsInsertAt0(APNUM_int* a, APNUM_Digit x)
+static void APNUM_intDightsInsertAt0(APNUM_int* a, APNUM_Digit d)
 {
-    assert(x < APNUM_Digit_Base);
-    if ((a->digits->length > 0) || x)
+    assert(d < APNUM_Digit_Base);
+    if ((a->digits->length > 0) || d)
     {
-        vec_insert(a->digits, 0, x);
+        vec_insert(a->digits, 0, d);
     }
 }
 
@@ -357,26 +371,25 @@ static void APNUM_intTruncate(APNUM_int* a)
 
 
 
-void APNUM_intDup(APNUM_int* out, const APNUM_int* x)
+void APNUM_intDup(APNUM_int* out, const APNUM_int* a)
 {
-    vec_dup(out->digits, x->digits);
-    out->neg = x->neg;
+    vec_dup(out->digits, a->digits);
+    out->neg = a->neg;
 }
 
-
-
-
-bool APNUM_intIsZero(APNUM_int* x)
+bool APNUM_intIsZero(APNUM_int* a)
 {
-    if (x->neg)
+    if (a->neg)
     {
-        assert(x->digits->length > 0);
+        assert(a->digits->length > 0);
     }
-    return 0 == x->digits->length;
+    return 0 == a->digits->length;
 }
 
-
-
+bool APNUM_intIsNeg(APNUM_int* a)
+{
+    return a->neg;
+}
 
 int APNUM_intCmp(const APNUM_int* a, const APNUM_int* b)
 {
@@ -397,6 +410,14 @@ int APNUM_intCmp(const APNUM_int* a, const APNUM_int* b)
 }
 
 
+
+
+
+
+void APNUM_intNegation(APNUM_int* a)
+{
+    a->neg = !a->neg;
+}
 
 
 
@@ -581,9 +602,9 @@ bool APNUM_intFromStr(APNUM_pool_t pool, APNUM_int* out, u32 base, const char* s
 }
 
 
-u32 APNUM_intToStr(APNUM_pool_t pool, const APNUM_int* x, u32 base, char* strBuf, u32 strBufSize)
+u32 APNUM_intToStr(APNUM_pool_t pool, const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize)
 {
-    return APNUM_intToStrWithHead(pool, x, base, strBuf, strBufSize, 0, NULL);
+    return APNUM_intToStrWithHead(pool, a, base, strBuf, strBufSize, 0, NULL);
 }
 
 
@@ -621,7 +642,7 @@ bool APNUM_intFromStrWithBaseFmt(APNUM_pool_t pool, APNUM_int* out, const char* 
 
 u32 APNUM_intToStrWithBaseFmt
 (
-    APNUM_pool_t pool, const APNUM_int* x, APNUM_int_StrBaseFmtType baseFmt, char* strBuf, u32 strBufSize
+    APNUM_pool_t pool, const APNUM_int* a, APNUM_int_StrBaseFmtType baseFmt, char* strBuf, u32 strBufSize
 )
 {
     u32 base = 10;
@@ -653,7 +674,7 @@ u32 APNUM_intToStrWithBaseFmt
         assert(false);
         break;
     }
-    return APNUM_intToStrWithHead(pool, x, base, strBuf, strBufSize, headLen, head);
+    return APNUM_intToStrWithHead(pool, a, base, strBuf, strBufSize, headLen, head);
 }
 
 
@@ -1018,6 +1039,188 @@ void APNUM_intDiv(APNUM_pool_t pool, APNUM_int* outQ, APNUM_int* outR, const APN
     assert(outR != D);
     APNUM_intDivSimple(pool, outQ, outR, N, D);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+typedef struct APNUM_rat
+{
+    APNUM_int* numerator;
+    APNUM_int* denominator;
+} APNUM_rat;
+
+static void APNUM_ratFreeMem(APNUM_rat* a)
+{
+    free(a);
+}
+
+
+
+
+
+
+
+
+
+
+APNUM_rat* APNUM_ratZero(APNUM_pool_t pool)
+{
+    if (pool->freeRationals->length > 0)
+    {
+        APNUM_rat* a = vec_last(pool->freeRationals);
+        vec_pop(pool->freeRationals);
+
+        a->numerator = APNUM_intZero(pool);
+        a->denominator = APNUM_intZero(pool);
+        vec_push(a->denominator->digits, 1);
+        return a;
+    }
+    else
+    {
+        APNUM_rat* a = zalloc(sizeof(*a));
+        return a;
+    }
+}
+
+void APNUM_ratFree(APNUM_pool_t pool, APNUM_rat* a)
+{
+    APNUM_intFree(pool, a->denominator);
+    APNUM_intFree(pool, a->numerator);
+    vec_push(pool->freeRationals, a);
+}
+
+
+
+
+
+
+
+void APNUM_ratDup(APNUM_rat* out, const APNUM_rat* a)
+{
+
+}
+
+bool APNUM_ratIsZero(APNUM_rat* a)
+{
+    return APNUM_intIsZero(a->numerator);
+}
+
+bool APNUM_ratIsNeg(APNUM_rat* a)
+{
+    // todo
+    return false;
+}
+
+int APNUM_ratCmp(const APNUM_rat* a, const APNUM_rat* b)
+{
+    // todo
+    return 0;
+}
+
+
+
+
+
+
+void APNUM_ratNegation(APNUM_rat* a)
+{
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

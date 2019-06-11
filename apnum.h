@@ -23,6 +23,9 @@ typedef double f64;
 
 
 
+
+
+
 typedef enum APNUM_int_StrBaseFmtType
 {
     APNUM_int_StrBaseFmtType_DEC = 0,
@@ -30,6 +33,9 @@ typedef enum APNUM_int_StrBaseFmtType
     APNUM_int_StrBaseFmtType_OCT,
     APNUM_int_StrBaseFmtType_HEX,
 } APNUM_int_StrBaseFmtType;
+
+
+
 
 
 
@@ -42,24 +48,30 @@ void APNUM_poolFree(APNUM_pool_t pool);
 
 
 
+
+
+
 typedef struct APNUM_int APNUM_int;
 
 APNUM_int* APNUM_intZero(APNUM_pool_t pool);
-void APNUM_intFree(APNUM_pool_t pool, APNUM_int* x);
+void APNUM_intFree(APNUM_pool_t pool, APNUM_int* a);
 
 
-void APNUM_intDup(APNUM_int* out, const APNUM_int* x);
-bool APNUM_intIsZero(APNUM_int* x);
+void APNUM_intDup(APNUM_int* out, const APNUM_int* a);
+bool APNUM_intIsZero(APNUM_int* a);
+bool APNUM_intIsNeg(APNUM_int* a);
 int APNUM_intCmp(const APNUM_int* a, const APNUM_int* b);
+
+void APNUM_intNegation(APNUM_int* a);
 
 
 bool APNUM_intFromStr(APNUM_pool_t pool, APNUM_int* out, u32 base, const char* str);
-u32 APNUM_intToStr(APNUM_pool_t pool, const APNUM_int* x, u32 base, char* strBuf, u32 strBufSize);
+u32 APNUM_intToStr(APNUM_pool_t pool, const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize);
 
 bool APNUM_intFromStrWithBaseFmt(APNUM_pool_t pool, APNUM_int* out, const char* str);
 u32 APNUM_intToStrWithBaseFmt
 (
-    APNUM_pool_t pool, const APNUM_int* x, APNUM_int_StrBaseFmtType baseFmt, char* strBuf, u32 strBufSize
+    APNUM_pool_t pool, const APNUM_int* a, APNUM_int_StrBaseFmtType baseFmt, char* strBuf, u32 strBufSize
 );
 
 
@@ -77,12 +89,18 @@ void APNUM_intDiv(APNUM_pool_t pool, APNUM_int* outQ, APNUM_int* outR, const APN
 
 
 
+typedef struct APNUM_rat APNUM_rat;
+
+APNUM_rat* APNUM_ratZero(APNUM_pool_t pool);
+void APNUM_ratFree(APNUM_pool_t pool, APNUM_rat* a);
 
 
+void APNUM_ratDup(APNUM_rat* out, const APNUM_rat* a);
+bool APNUM_ratIsZero(APNUM_rat* a);
+bool APNUM_ratIsNeg(APNUM_rat* a);
+int APNUM_ratCmp(const APNUM_rat* a, const APNUM_rat* b);
 
-
-
-
+void APNUM_ratNegation(APNUM_rat* a);
 
 
 
