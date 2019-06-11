@@ -312,10 +312,10 @@ static void APNUM_intDigitsFromU32(APNUM_int* a, u32 u)
 }
 
 
-void APNUM_intFromU32(APNUM_int* out, u32 u)
+void APNUM_intFromU32(APNUM_int* out, u32 u, bool neg)
 {
     APNUM_intDigitsFromU32(out, u);
-    out->neg = false;
+    out->neg = neg;
 }
 
 void APNUM_intFromS32(APNUM_int* out, s32 i)
