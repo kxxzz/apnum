@@ -52,12 +52,14 @@ static void test(void)
     }
 
     {
+        const char astr[] = "-999999999";
+        const char bstr[] = "56789";
         APNUM_int* a = APNUM_intNew(pool);
         APNUM_int* b = APNUM_intNew(pool);
-        n = APNUM_intFromStr(pool, a, 10, "-999999999");
-        assert(10 == n);
-        n = APNUM_intFromStr(pool, b, 10, "56789");
-        assert(5 == n);
+        n = APNUM_intFromStr(pool, a, 10, astr);
+        assert((u32)strlen(astr) == n);
+        n = APNUM_intFromStr(pool, b, 10, bstr);
+        assert((u32)strlen(bstr) == n);
         APNUM_int* c = APNUM_intNew(pool);
         APNUM_int* d = APNUM_intNew(pool);
         APNUM_intDiv(pool, c, d, a, b);
@@ -75,9 +77,10 @@ static void test(void)
     }
 
     {
+        const char astr[] = "-000bc5ea8";
         APNUM_int* a = APNUM_intNew(pool);
-        n = APNUM_intFromStr(pool, a, 16, "-000bc5ea8");
-        assert(10 == n);
+        n = APNUM_intFromStr(pool, a, 16, astr);
+        assert((u32)strlen(astr) == n);
         char buf[1024];
         n = APNUM_intToStr(pool, a, 2, buf, sizeof(buf));
         buf[n] = 0;
@@ -95,9 +98,10 @@ static void test(void)
     }
 
     {
+        const char astr[] = "-0xbc5ea8";
         APNUM_int* a = APNUM_intNew(pool);
-        n = APNUM_intFromStrWithBaseFmt(pool, a, "-0xbc5ea8");
-        assert(9 == n);
+        n = APNUM_intFromStrWithBaseFmt(pool, a, astr);
+        assert((u32)strlen(astr) == n);
         char buf[1024];
         n = APNUM_intToStrWithBaseFmt(pool, a, APNUM_int_StrBaseFmtType_DEC, buf, sizeof(buf));
         buf[n] = 0;
@@ -115,12 +119,14 @@ static void test(void)
     }
 
     {
+        const char astr[] = "-56789";
+        const char bstr[] = "92345";
         APNUM_int* a = APNUM_intNew(pool);
-        n = APNUM_intFromStr(pool, a, 10, "-56789");
-        assert(6 == n);
+        n = APNUM_intFromStr(pool, a, 10, astr);
+        assert((u32)strlen(astr) == n);
         APNUM_int* b = APNUM_intNew(pool);
-        n = APNUM_intFromStr(pool, b, 10, "92345");
-        assert(5 == n);
+        n = APNUM_intFromStr(pool, b, 10, bstr);
+        assert((u32)strlen(bstr) == n);
         APNUM_int* c = APNUM_intNew(pool);
         APNUM_intSub(pool, c, a, b);
 
@@ -153,12 +159,14 @@ static void test(void)
     }
 
     {
+        const char astr[] = "0";
+        const char bstr[] = "-12";
         APNUM_int* a = APNUM_intNew(pool);
-        n = APNUM_intFromStr(pool, a, 10, "0");
-        assert(1 == n);
+        n = APNUM_intFromStr(pool, a, 10, astr);
+        assert((u32)strlen(astr) == n);
         APNUM_int* b = APNUM_intNew(pool);
-        n = APNUM_intFromStr(pool, b, 10, "-12");
-        assert(3 == n);
+        n = APNUM_intFromStr(pool, b, 10, bstr);
+        assert((u32)strlen(bstr) == n);
         int c = APNUM_intCmp(a, b);
         assert(1 == c);
 
@@ -167,12 +175,14 @@ static void test(void)
     }
 
     {
+        const char astr[] = "23958233";
+        const char bstr[] = "5830";
         APNUM_int* a = APNUM_intNew(pool);
-        n = APNUM_intFromStr(pool, a, 10, "23958233");
-        assert(8 == n);
+        n = APNUM_intFromStr(pool, a, 10, astr);
+        assert((u32)strlen(astr) == n);
         APNUM_int* b = APNUM_intNew(pool);
-        n = APNUM_intFromStr(pool, b, 10, "5830");
-        assert(4 == n);
+        n = APNUM_intFromStr(pool, b, 10, bstr);
+        assert((u32)strlen(bstr) == n);
         APNUM_int* c = APNUM_intNew(pool);
         APNUM_intMul(pool, c, a, b);
 
