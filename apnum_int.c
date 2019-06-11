@@ -85,6 +85,15 @@ void APNUM_intSetNeg(APNUM_int* a, bool neg)
 }
 
 
+
+
+
+
+
+
+
+
+
 static void APNUM_intSwap(APNUM_int* a, APNUM_int* b)
 {
     APNUM_int t = *a;

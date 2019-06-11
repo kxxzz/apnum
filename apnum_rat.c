@@ -36,6 +36,10 @@ APNUM_rat* APNUM_ratNew(APNUM_pool_t pool)
     {
         APNUM_rat* a = zalloc(sizeof(*a));
         vec_push(pool->rationals, a);
+
+        a->numerator = APNUM_intNew(pool);
+        a->denominator = APNUM_intNew(pool);
+        APNUM_intFromU32(pool, a->denominator, 1, 0);
         return a;
     }
 }
