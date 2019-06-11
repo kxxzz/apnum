@@ -79,11 +79,28 @@ static void test(void)
 
     {
         APNUM_int* a = APNUM_intZero(pool);
-        r = APNUM_intFromStr(pool, a, 10, "56789");
+        r = APNUM_intFromStr(pool, a, 10, "-56789");
         assert(r);
         APNUM_int* b = APNUM_intZero(pool);
         r = APNUM_intFromStr(pool, b, 10, "92345");
         assert(r);
+        APNUM_int* c = APNUM_intZero(pool);
+        APNUM_intSub(pool, c, a, b);
+
+        char buf[1024];
+        n = APNUM_intToStr(pool, c, 10, buf, sizeof(buf));
+        printf("%s\n", buf);
+
+        APNUM_intFree(pool, a);
+        APNUM_intFree(pool, b);
+        APNUM_intFree(pool, c);
+    }
+
+    {
+        APNUM_int* a = APNUM_intZero(pool);
+        APNUM_intFromS32(a, -56789);
+        APNUM_int* b = APNUM_intZero(pool);
+        APNUM_intFromS32(b, 92345);
         APNUM_int* c = APNUM_intZero(pool);
         APNUM_intSub(pool, c, a, b);
 
