@@ -28,8 +28,7 @@ APNUM_rat* APNUM_ratZero(APNUM_pool_t pool)
         APNUM_rat* a = vec_last(pool->freeRationals);
         vec_pop(pool->freeRationals);
 
-        a->numerator = APNUM_intZero(pool);
-        a->denominator = APNUM_intZero(pool);
+        APNUM_intFromU32(pool, a->numerator, 0, 0);
         APNUM_intFromU32(pool, a->denominator, 1, 0);
         return a;
     }
@@ -42,8 +41,6 @@ APNUM_rat* APNUM_ratZero(APNUM_pool_t pool)
 
 void APNUM_ratFree(APNUM_pool_t pool, APNUM_rat* a)
 {
-    APNUM_intFree(pool, a->denominator);
-    APNUM_intFree(pool, a->numerator);
     vec_push(pool->freeRationals, a);
 }
 
@@ -57,13 +54,13 @@ void APNUM_ratFree(APNUM_pool_t pool, APNUM_rat* a)
 
 void APNUM_ratDup(APNUM_rat* out, const APNUM_rat* a)
 {
-    APNUM_intDup(out->denominator, a->denominator);
     APNUM_intDup(out->numerator, a->numerator);
+    APNUM_intDup(out->denominator, a->denominator);
 }
 
 void APNUM_ratNegation(APNUM_rat* a)
 {
-    APNUM_intNegation(a->denominator);
+    APNUM_intNegation(a->numerator);
 }
 
 bool APNUM_ratIsZero(APNUM_rat* a)
@@ -73,8 +70,7 @@ bool APNUM_ratIsZero(APNUM_rat* a)
 
 bool APNUM_ratIsNeg(APNUM_rat* a)
 {
-    // todo
-    return false;
+    return APNUM_intIsNeg(a->numerator);
 }
 
 int APNUM_ratCmp(const APNUM_rat* a, const APNUM_rat* b)
@@ -95,7 +91,8 @@ int APNUM_ratCmp(const APNUM_rat* a, const APNUM_rat* b)
 
 void APNUM_ratFromInt(APNUM_pool_t pool, APNUM_rat* out, const APNUM_int* n, const APNUM_int* d)
 {
-
+    //assert(!APNUM_intIsNeg(a->denominator));
+    //assert(!APNUM_intIsZero(a->denominator));
 }
 
 
