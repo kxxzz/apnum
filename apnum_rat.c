@@ -89,33 +89,49 @@ int APNUM_ratCmp(const APNUM_rat* a, const APNUM_rat* b)
 
 
 
+
+
+
+
+void APNUM_ratFromU32(APNUM_pool_t pool, APNUM_rat* out, u32 n, u32 d, bool neg)
+{
+    APNUM_int* numerator = APNUM_intZero(pool);
+    APNUM_int* denominator = APNUM_intZero(pool);
+    APNUM_intFromU32(pool, numerator, n, neg);
+    APNUM_intFromU32(pool, denominator, d, false);
+    APNUM_ratFromInt(pool, out, numerator, denominator);
+    APNUM_intFree(pool, denominator);
+    APNUM_intFree(pool, numerator);
+}
+
+void APNUM_ratFromS32(APNUM_pool_t pool, APNUM_rat* out, s32 n, s32 d)
+{
+    APNUM_int* numerator = APNUM_intZero(pool);
+    APNUM_int* denominator = APNUM_intZero(pool);
+    APNUM_intFromS32(pool, numerator, n);
+    APNUM_intFromS32(pool, denominator, d);
+    APNUM_ratFromInt(pool, out, numerator, denominator);
+    APNUM_intFree(pool, denominator);
+    APNUM_intFree(pool, numerator);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 void APNUM_ratFromInt(APNUM_pool_t pool, APNUM_rat* out, const APNUM_int* n, const APNUM_int* d)
 {
     //assert(!APNUM_intIsNeg(a->denominator));
     //assert(!APNUM_intIsZero(a->denominator));
 }
-
-
-void APNUM_ratFromU32(APNUM_pool_t pool, APNUM_rat* out, u32 n, u32 d, bool neg)
-{
-
-}
-
-
-void APNUM_ratFromS32(APNUM_pool_t pool, APNUM_rat* out, s32 n, s32 d)
-{
-
-}
-
-
-
-
-
-
-
-
-
-
 
 
 

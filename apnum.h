@@ -87,10 +87,9 @@ bool APNUM_ratIsNeg(APNUM_rat* a);
 int APNUM_ratCmp(const APNUM_rat* a, const APNUM_rat* b);
 
 
-void APNUM_ratFromInt(APNUM_pool_t pool, APNUM_rat* out, const APNUM_int* n, const APNUM_int* d);
 void APNUM_ratFromU32(APNUM_pool_t pool, APNUM_rat* out, u32 n, u32 d, bool neg);
 void APNUM_ratFromS32(APNUM_pool_t pool, APNUM_rat* out, s32 n, s32 d);
-
+void APNUM_ratFromInt(APNUM_pool_t pool, APNUM_rat* out, const APNUM_int* n, const APNUM_int* d);
 
 
 
