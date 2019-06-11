@@ -6,6 +6,8 @@
 
 
 
+
+
 APNUM_pool_t APNUM_poolNew(void)
 {
     APNUM_pool_t pool = zalloc(sizeof(APNUM_pool));
@@ -14,9 +16,12 @@ APNUM_pool_t APNUM_poolNew(void)
 
 
 
+
+
+
+
 void APNUM_intFreeMem(APNUM_int* a);
 void APNUM_ratFreeMem(APNUM_rat* a);
-
 
 
 
