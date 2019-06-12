@@ -126,10 +126,9 @@ int APNUM_ratCmp(APNUM_pool_t pool, const APNUM_rat* a, const APNUM_rat* b)
         APNUM_int* d = APNUM_intNew(pool);
         APNUM_intMul(pool, c, a->numerator, b->denominator);
         APNUM_intMul(pool, d, b->numerator, a->denominator);
-        int r = APNUM_intCmpAbs(c, d);
+        int r = APNUM_intCmp(c, d);
         APNUM_intFree(pool, c);
         APNUM_intFree(pool, d);
-        r = APNUM_intIsNeg(a->numerator) ? -r : r;
         return r;
     }
 }
