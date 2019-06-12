@@ -111,7 +111,15 @@ u32 APNUM_ratFromStrWithBaseFmt(APNUM_pool_t pool, APNUM_rat* out, const char* s
 u32 APNUM_ratToStrWithBaseFmt(APNUM_pool_t pool, const APNUM_rat* a, APNUM_int_StrBaseFmtType baseFmt, char* strBuf, u32 strBufSize);
 
 
+void APNUM_ratAddInP(APNUM_pool_t pool, APNUM_rat* a, const APNUM_rat* b);
+void APNUM_ratSubInP(APNUM_pool_t pool, APNUM_rat* a, const APNUM_rat* b);
+void APNUM_ratMulInP(APNUM_pool_t pool, APNUM_rat* a, const APNUM_rat* b);
+void APNUM_ratDivInP(APNUM_pool_t pool, APNUM_rat* a, const APNUM_rat* b);
 
+void APNUM_ratAdd(APNUM_pool_t pool, APNUM_rat* out, const APNUM_rat* a, const APNUM_rat* b);
+void APNUM_ratSub(APNUM_pool_t pool, APNUM_rat* out, const APNUM_rat* a, const APNUM_rat* b);
+void APNUM_ratMul(APNUM_pool_t pool, APNUM_rat* out, const APNUM_rat* a, const APNUM_rat* b);
+void APNUM_ratDiv(APNUM_pool_t pool, APNUM_rat* out, const APNUM_rat* a, const APNUM_rat* b);
 
 
 
