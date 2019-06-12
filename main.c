@@ -323,7 +323,7 @@ static void test(void)
         APNUM_rat* a = APNUM_ratNew(pool);
         APNUM_rat* b = APNUM_ratNew(pool);
         APNUM_rat* c = APNUM_ratNew(pool);
-        APNUM_ratFromStr(pool, a, 10, "1/-3");
+        APNUM_ratFromStr(pool, a, 10, "10/-30");
         APNUM_ratFromStr(pool, b, 10, "33/99");
 
         r = APNUM_ratCmp(pool, a, b);
