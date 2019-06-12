@@ -202,6 +202,101 @@ void APNUM_ratFromInt(APNUM_pool_t pool, APNUM_rat* out, const APNUM_int* n, con
 
 
 
+bool APNUM_ratToU32(APNUM_pool_t pool, APNUM_rat* a, u32* out)
+{
+    if (APNUM_ratIsInt(a))
+    {
+        return APNUM_intToU32(pool, a->numerator, out);
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool APNUM_ratToU64(APNUM_pool_t pool, APNUM_rat* a, u64* out)
+{
+    if (APNUM_ratIsInt(a))
+    {
+        return APNUM_intToU64(pool, a->numerator, out);
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool APNUM_ratToS32(APNUM_pool_t pool, APNUM_rat* a, s32* out)
+{
+    if (APNUM_ratIsInt(a))
+    {
+        return APNUM_intToS32(pool, a->numerator, out);
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool APNUM_ratToS64(APNUM_pool_t pool, APNUM_rat* a, s64* out)
+{
+    if (APNUM_ratIsInt(a))
+    {
+        return APNUM_intToS64(pool, a->numerator, out);
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool APNUM_ratToF32(APNUM_pool_t pool, APNUM_rat* a, f32* out)
+{
+    // todo
+    return false;
+}
+
+bool APNUM_ratToF64(APNUM_pool_t pool, APNUM_rat* a, f64* out)
+{
+    // todo
+    return false;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
