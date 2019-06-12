@@ -281,6 +281,33 @@ bool APNUM_intIsNeg(const APNUM_int* a)
     return a->neg;
 }
 
+bool APNUM_intEq(const APNUM_int* a, const APNUM_int* b)
+{
+    if (a->neg != b->neg)
+    {
+        return false;
+    }
+    if (a->digits->length != b->digits->length)
+    {
+        return false;
+    }
+    if (memcmp(a->digits->data, b->digits->data, a->digits->length * sizeof(a->digits->data[0])) != 0)
+    {
+        return false;
+    }
+    return true;
+}
+
+
+
+
+
+
+
+
+
+
+
 int APNUM_intCmpAbs(const APNUM_int* a, const APNUM_int* b)
 {
     return APNUM_absCmpInt(a->digits->data, a->digits->length, b->digits->data, b->digits->length);

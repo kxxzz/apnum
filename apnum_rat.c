@@ -103,6 +103,11 @@ bool APNUM_ratIsInt(const APNUM_rat* a)
     return APNUM_intIsOne(a->denominator);
 }
 
+bool APNUM_ratEq(const APNUM_rat* a, const APNUM_rat* b)
+{
+    return APNUM_intEq(a->numerator, b->numerator) && APNUM_intEq(a->denominator, b->denominator);
+}
+
 
 
 

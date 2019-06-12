@@ -52,6 +52,7 @@ void APNUM_intNeg(APNUM_int* a);
 bool APNUM_intIsZero(const APNUM_int* a);
 bool APNUM_intIsOne(const APNUM_int* a);
 bool APNUM_intIsNeg(const APNUM_int* a);
+bool APNUM_intEq(const APNUM_int* a, const APNUM_int* b);
 
 
 int APNUM_intCmpAbs(const APNUM_int* a, const APNUM_int* b);
@@ -104,6 +105,7 @@ bool APNUM_ratIsZero(const APNUM_rat* a);
 bool APNUM_ratIsOne(const APNUM_rat* a);
 bool APNUM_ratIsNeg(const APNUM_rat* a);
 bool APNUM_ratIsInt(const APNUM_rat* a);
+bool APNUM_ratEq(const APNUM_rat* a, const APNUM_rat* b);
 
 
 int APNUM_ratCmp(APNUM_pool_t pool, const APNUM_rat* a, const APNUM_rat* b);
