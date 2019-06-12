@@ -329,6 +329,7 @@ int APNUM_intCmp(const APNUM_int* a, const APNUM_int* b)
 
 static void APNUM_intDigitsFromU32(APNUM_int* a, u32 u)
 {
+    assert(u <= UINT32_MAX);
     vec_resize(a->digits, 0);
     while (u)
     {
@@ -340,6 +341,7 @@ static void APNUM_intDigitsFromU32(APNUM_int* a, u32 u)
 
 static void APNUM_intDigitsFromU64(APNUM_int* a, u64 u)
 {
+    assert(u <= UINT64_MAX);
     vec_resize(a->digits, 0);
     while (u)
     {
@@ -350,17 +352,16 @@ static void APNUM_intDigitsFromU64(APNUM_int* a, u64 u)
 }
 
 
+
+
+
+
+
+
 void APNUM_intFromU32(APNUM_pool_t pool, APNUM_int* out, u32 u, bool neg)
 {
     APNUM_intDigitsFromU32(out, u);
     APNUM_intSetNeg(out, neg);
-}
-
-void APNUM_intFromS32(APNUM_pool_t pool, APNUM_int* out, s32 i)
-{
-    u32 u = (i >= 0) ? i : -i;
-    APNUM_intDigitsFromU32(out, u);
-    APNUM_intSetNeg(out, i < 0);
 }
 
 void APNUM_intFromU64(APNUM_pool_t pool, APNUM_int* out, u64 u, bool neg)
@@ -369,12 +370,115 @@ void APNUM_intFromU64(APNUM_pool_t pool, APNUM_int* out, u64 u, bool neg)
     APNUM_intSetNeg(out, neg);
 }
 
+void APNUM_intFromS32(APNUM_pool_t pool, APNUM_int* out, s32 i)
+{
+    u32 u = abs(i);
+    APNUM_intDigitsFromU32(out, u);
+    APNUM_intSetNeg(out, i < 0);
+}
+
 void APNUM_intFromS64(APNUM_pool_t pool, APNUM_int* out, s64 i)
 {
-    u64 u = (i >= 0) ? i : -i;
+    u64 u = llabs(i);
     APNUM_intDigitsFromU64(out, u);
     APNUM_intSetNeg(out, i < 0);
 }
+
+
+
+
+
+bool APNUM_intToU32(APNUM_pool_t pool, APNUM_int* a, u32* out)
+{
+    APNUM_int* b = APNUM_intNew(pool);
+    APNUM_intFromU32(pool, b, UINT32_MAX, false);
+    if (APNUM_intCmpAbs(a, b) <= 0)
+    {
+        u32 n = 0;
+        for (u32 i = 0; i < a->digits->length; ++i)
+        {
+            n *= APNUM_Digit_Base;
+            u32 j = a->digits->length - 1 - i;
+            n = n + a->digits->data[j];
+        }
+        *out = n;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool APNUM_intToU64(APNUM_pool_t pool, APNUM_int* a, u64* out)
+{
+    APNUM_int* b = APNUM_intNew(pool);
+    APNUM_intFromU64(pool, b, UINT64_MAX, false);
+    if (APNUM_intCmpAbs(a, b) <= 0)
+    {
+        u64 n = 0;
+        for (u32 i = 0; i < a->digits->length; ++i)
+        {
+            n *= APNUM_Digit_Base;
+            u32 j = a->digits->length - 1 - i;
+            n = n + a->digits->data[j];
+        }
+        *out = n;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool APNUM_intToS32(APNUM_pool_t pool, APNUM_int* a, s32* out)
+{
+    APNUM_int* b = APNUM_intNew(pool);
+    APNUM_intFromS32(pool, b, INT32_MAX);
+    if (APNUM_intCmpAbs(a, b) <= 0)
+    {
+        s32 n = 0;
+        for (u32 i = 0; i < a->digits->length; ++i)
+        {
+            n *= APNUM_Digit_Base;
+            u32 j = a->digits->length - 1 - i;
+            n = n + a->digits->data[j];
+        }
+        *out = a->neg ? -n : n;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool APNUM_intToS64(APNUM_pool_t pool, APNUM_int* a, s64* out)
+{
+    APNUM_int* b = APNUM_intNew(pool);
+    APNUM_intFromS64(pool, b, INT64_MAX);
+    if (APNUM_intCmpAbs(a, b) <= 0)
+    {
+        s64 n = 0;
+        for (u32 i = 0; i < a->digits->length; ++i)
+        {
+            n *= APNUM_Digit_Base;
+            u32 j = a->digits->length - 1 - i;
+            n = n + a->digits->data[j];
+        }
+        *out = a->neg ? -n : n;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
+
+
 
 
 

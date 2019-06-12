@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "apnum.h"
 
@@ -44,6 +45,47 @@ static void test(void)
         APNUM_int* a = APNUM_intNew(pool);
         n = APNUM_intFromStr(pool, a, 10, "-");
         assert(0 == n);
+        char buf[1024];
+        n = APNUM_intToStr(pool, a, 10, buf, sizeof(buf));
+        buf[n] = 0;
+        printf("%s\n", buf);
+        APNUM_intFree(pool, a);
+    }
+
+    {
+        APNUM_int* a = APNUM_intNew(pool);
+        APNUM_intFromS64(pool, a, -1234567890123456789);
+        char buf[1024];
+        n = APNUM_intToStr(pool, a, 10, buf, sizeof(buf));
+        buf[n] = 0;
+        printf("%s\n", buf);
+        APNUM_intFree(pool, a);
+    }
+
+    {
+        const char astr[] = "-1234567890123456789";
+        APNUM_int* a = APNUM_intNew(pool);
+        n = APNUM_intFromStr(pool, a, 10, astr);
+        assert((u32)strlen(astr) == n);
+        s64 s;
+        bool r = APNUM_intToS64(pool, a, &s);
+        assert(r);
+        char buf[1024];
+        n = sprintf(buf, "%"PRId64, s);
+        buf[n] = 0;
+        printf("%s\n", buf);
+        APNUM_intFree(pool, a);
+    }
+
+    {
+        const char astr[] = "-12345678901234567890";
+        APNUM_int* a = APNUM_intNew(pool);
+        n = APNUM_intFromStr(pool, a, 10, astr);
+        assert((u32)strlen(astr) == n);
+        s64 s = 0;
+        bool r = APNUM_intToS64(pool, a, &s);
+        assert(!r);
+        assert(!s);
         char buf[1024];
         n = APNUM_intToStr(pool, a, 10, buf, sizeof(buf));
         buf[n] = 0;
