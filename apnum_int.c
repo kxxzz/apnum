@@ -329,7 +329,6 @@ int APNUM_intCmp(const APNUM_int* a, const APNUM_int* b)
 
 static void APNUM_intDigitsFromU32(APNUM_int* a, u32 u)
 {
-    assert(u <= UINT32_MAX);
     vec_resize(a->digits, 0);
     while (u)
     {
@@ -341,7 +340,6 @@ static void APNUM_intDigitsFromU32(APNUM_int* a, u32 u)
 
 static void APNUM_intDigitsFromU64(APNUM_int* a, u64 u)
 {
-    assert(u <= UINT64_MAX);
     vec_resize(a->digits, 0);
     while (u)
     {
@@ -372,14 +370,14 @@ void APNUM_intFromU64(APNUM_pool_t pool, APNUM_int* out, u64 u, bool neg)
 
 void APNUM_intFromS32(APNUM_pool_t pool, APNUM_int* out, s32 i)
 {
-    u32 u = abs(i);
+    u32 u = i < 0 ? -i : i;
     APNUM_intDigitsFromU32(out, u);
     APNUM_intSetNeg(out, i < 0);
 }
 
 void APNUM_intFromS64(APNUM_pool_t pool, APNUM_int* out, s64 i)
 {
-    u64 u = llabs(i);
+    u64 u = i < 0 ? -i : i;
     APNUM_intDigitsFromU64(out, u);
     APNUM_intSetNeg(out, i < 0);
 }

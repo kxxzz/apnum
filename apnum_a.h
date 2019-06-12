@@ -9,7 +9,6 @@
 #include <string.h>
 #include <math.h>
 #include <assert.h>
-#include <math.h>
 
 #include <vec.h>
 
