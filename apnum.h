@@ -115,8 +115,6 @@ bool APNUM_ratToU32(APNUM_pool_t pool, APNUM_rat* a, u32* out);
 bool APNUM_ratToU64(APNUM_pool_t pool, APNUM_rat* a, u64* out);
 bool APNUM_ratToS32(APNUM_pool_t pool, APNUM_rat* a, s32* out);
 bool APNUM_ratToS64(APNUM_pool_t pool, APNUM_rat* a, s64* out);
-bool APNUM_ratToF32(APNUM_pool_t pool, APNUM_rat* a, f32* out);
-bool APNUM_ratToF64(APNUM_pool_t pool, APNUM_rat* a, f64* out);
 
 
 u32 APNUM_ratFromStr(APNUM_pool_t pool, APNUM_rat* out, u32 base, const char* str);
