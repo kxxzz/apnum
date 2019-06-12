@@ -254,7 +254,7 @@ static void test(void)
 
     {
         APNUM_rat* r = APNUM_ratNew(pool);
-        APNUM_ratFromStr(pool, r, 10, "54/-24");
+        APNUM_ratFromStr(pool, r, 10, "480/-24");
 
         char buf[1024];
         n = APNUM_ratToStr(pool, r, 10, buf, sizeof(buf));
