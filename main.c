@@ -295,27 +295,54 @@ static void test(void)
     }
 
     {
-        APNUM_rat* r = APNUM_ratNew(pool);
-        APNUM_ratFromStr(pool, r, 10, "480/-24");
+        APNUM_rat* a = APNUM_ratNew(pool);
+        APNUM_ratFromStr(pool, a, 10, "480/-24");
 
         char buf[1024];
-        n = APNUM_ratToStr(pool, r, 10, buf, sizeof(buf));
+        n = APNUM_ratToStr(pool, a, 10, buf, sizeof(buf));
         buf[n] = 0;
         printf("%s\n", buf);
 
-        APNUM_ratFree(pool, r);
+        APNUM_ratFree(pool, a);
     }
 
     {
-        APNUM_rat* r = APNUM_ratNew(pool);
-        APNUM_ratFromStrWithBaseFmt(pool, r, "54/-0x11");
+        APNUM_rat* a = APNUM_ratNew(pool);
+        APNUM_ratFromStrWithBaseFmt(pool, a, "54/-0x11");
 
         char buf[1024];
-        n = APNUM_ratToStrWithBaseFmt(pool, r, APNUM_int_StrBaseFmtType_HEX, buf, sizeof(buf));
+        n = APNUM_ratToStrWithBaseFmt(pool, a, APNUM_int_StrBaseFmtType_HEX, buf, sizeof(buf));
         buf[n] = 0;
         printf("%s\n", buf);
 
-        APNUM_ratFree(pool, r);
+        APNUM_ratFree(pool, a);
+    }
+
+    {
+        int r;
+        APNUM_rat* a = APNUM_ratNew(pool);
+        APNUM_rat* b = APNUM_ratNew(pool);
+        APNUM_rat* c = APNUM_ratNew(pool);
+        APNUM_ratFromStr(pool, a, 10, "1/-3");
+        APNUM_ratFromStr(pool, b, 10, "33/99");
+
+        r = APNUM_ratCmp(pool, a, b);
+        assert(-1 == r);
+
+        APNUM_ratAbs(a);
+        r = APNUM_ratCmp(pool, a, b);
+        assert(0 == r);
+
+        APNUM_ratSub(pool, c, a, b);
+
+        char buf[1024];
+        n = APNUM_ratToStr(pool, c, 10, buf, sizeof(buf));
+        buf[n] = 0;
+        printf("%s\n", buf);
+
+        APNUM_ratFree(pool, a);
+        APNUM_ratFree(pool, b);
+        APNUM_ratFree(pool, c);
     }
 
     APNUM_poolFree(pool);

@@ -218,15 +218,6 @@ static int APNUM_absCmpInt(const APNUM_Digit* a, u32 na, const APNUM_Digit* b, u
 
 
 
-static int APNUM_intCmpAbs(const APNUM_int* a, const APNUM_int* b)
-{
-    return APNUM_absCmpInt(a->digits->data, a->digits->length, b->digits->data, b->digits->length);
-}
-
-
-
-
-
 static void APNUM_intTruncate(APNUM_int* a)
 {
     while (a->digits->length && (vec_last(a->digits) == 0))
@@ -288,6 +279,11 @@ bool APNUM_intIsOne(const APNUM_int* a)
 bool APNUM_intIsNeg(const APNUM_int* a)
 {
     return a->neg;
+}
+
+int APNUM_intCmpAbs(const APNUM_int* a, const APNUM_int* b)
+{
+    return APNUM_absCmpInt(a->digits->data, a->digits->length, b->digits->data, b->digits->length);
 }
 
 int APNUM_intCmp(const APNUM_int* a, const APNUM_int* b)

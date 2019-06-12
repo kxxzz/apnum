@@ -103,10 +103,35 @@ bool APNUM_ratIsInt(const APNUM_rat* a)
     return APNUM_intIsOne(a->denominator);
 }
 
-int APNUM_ratCmp(const APNUM_rat* a, const APNUM_rat* b)
+
+
+
+
+
+
+
+int APNUM_ratCmp(APNUM_pool_t pool, const APNUM_rat* a, const APNUM_rat* b)
 {
-    // todo
-    return 0;
+    if (!APNUM_intIsNeg(a->numerator) && APNUM_intIsNeg(b->numerator))
+    {
+        return 1;
+    }
+    else if (APNUM_intIsNeg(a->numerator) && !APNUM_intIsNeg(b->numerator))
+    {
+        return -1;
+    }
+    else
+    {
+        APNUM_int* c = APNUM_intNew(pool);
+        APNUM_int* d = APNUM_intNew(pool);
+        APNUM_intMul(pool, c, a->numerator, b->denominator);
+        APNUM_intMul(pool, d, b->numerator, a->denominator);
+        int r = APNUM_intCmpAbs(c, d);
+        APNUM_intFree(pool, c);
+        APNUM_intFree(pool, d);
+        r = APNUM_intIsNeg(a->numerator) ? -r : r;
+        return r;
+    }
 }
 
 
