@@ -130,8 +130,8 @@ void APNUM_ratFromU32(APNUM_pool_t pool, APNUM_rat* out, u32 n, u32 d, bool neg)
     APNUM_intFromU32(pool, numerator, n, neg);
     APNUM_intFromU32(pool, denominator, d, false);
     APNUM_ratFromInt(pool, out, numerator, denominator);
-    APNUM_intFree(pool, denominator);
     APNUM_intFree(pool, numerator);
+    APNUM_intFree(pool, denominator);
 }
 
 void APNUM_ratFromU64(APNUM_pool_t pool, APNUM_rat* out, u64 n, u64 d, bool neg)
@@ -141,8 +141,8 @@ void APNUM_ratFromU64(APNUM_pool_t pool, APNUM_rat* out, u64 n, u64 d, bool neg)
     APNUM_intFromU64(pool, numerator, n, neg);
     APNUM_intFromU64(pool, denominator, d, false);
     APNUM_ratFromInt(pool, out, numerator, denominator);
-    APNUM_intFree(pool, denominator);
     APNUM_intFree(pool, numerator);
+    APNUM_intFree(pool, denominator);
 }
 
 void APNUM_ratFromS32(APNUM_pool_t pool, APNUM_rat* out, s32 n, s32 d)
@@ -152,8 +152,8 @@ void APNUM_ratFromS32(APNUM_pool_t pool, APNUM_rat* out, s32 n, s32 d)
     APNUM_intFromS32(pool, numerator, n);
     APNUM_intFromS32(pool, denominator, d);
     APNUM_ratFromInt(pool, out, numerator, denominator);
-    APNUM_intFree(pool, denominator);
     APNUM_intFree(pool, numerator);
+    APNUM_intFree(pool, denominator);
 }
 
 void APNUM_ratFromS64(APNUM_pool_t pool, APNUM_rat* out, s64 n, s64 d)
@@ -163,8 +163,8 @@ void APNUM_ratFromS64(APNUM_pool_t pool, APNUM_rat* out, s64 n, s64 d)
     APNUM_intFromS64(pool, numerator, n);
     APNUM_intFromS64(pool, denominator, d);
     APNUM_ratFromInt(pool, out, numerator, denominator);
-    APNUM_intFree(pool, denominator);
     APNUM_intFree(pool, numerator);
+    APNUM_intFree(pool, denominator);
 }
 
 
@@ -187,10 +187,10 @@ void APNUM_ratFromInt(APNUM_pool_t pool, APNUM_rat* out, const APNUM_int* n, con
     APNUM_intDiv(pool, out->denominator, r, d, gcd);
     assert(APNUM_intIsZero(r));
     assert(!APNUM_intIsZero(out->denominator));
-    APNUM_intFree(pool, r);
-    APNUM_intFree(pool, gcd);
     APNUM_intSetNeg(out->numerator, APNUM_intIsNeg(n) ^ APNUM_intIsNeg(d));
     APNUM_intAbs(out->denominator);
+    APNUM_intFree(pool, gcd);
+    APNUM_intFree(pool, r);
 }
 
 
@@ -302,8 +302,8 @@ u32 APNUM_ratFromStr(APNUM_pool_t pool, APNUM_rat* out, u32 base, const char* st
     {
         APNUM_intDup(out->numerator, numerator);
         APNUM_intFromS32(pool, out->denominator, 1);
-        APNUM_intFree(pool, denominator);
         APNUM_intFree(pool, numerator);
+        APNUM_intFree(pool, denominator);
         return nlen;
     }
     u32 dlen = APNUM_intFromStr(pool, denominator, base, str + nlen + 1);
@@ -312,8 +312,8 @@ u32 APNUM_ratFromStr(APNUM_pool_t pool, APNUM_rat* out, u32 base, const char* st
         return 0;
     }
     APNUM_ratFromInt(pool, out, numerator, denominator);
-    APNUM_intFree(pool, denominator);
     APNUM_intFree(pool, numerator);
+    APNUM_intFree(pool, denominator);
     return nlen + dlen + 1;
 }
 
@@ -363,8 +363,8 @@ u32 APNUM_ratFromStrWithBaseFmt(APNUM_pool_t pool, APNUM_rat* out, const char* s
     {
         APNUM_intDup(out->numerator, numerator);
         APNUM_intFromS32(pool, out->denominator, 1);
-        APNUM_intFree(pool, denominator);
         APNUM_intFree(pool, numerator);
+        APNUM_intFree(pool, denominator);
         return nlen;
     }
     u32 dlen = APNUM_intFromStrWithBaseFmt(pool, denominator, str + nlen + 1);
@@ -373,8 +373,8 @@ u32 APNUM_ratFromStrWithBaseFmt(APNUM_pool_t pool, APNUM_rat* out, const char* s
         return 0;
     }
     APNUM_ratFromInt(pool, out, numerator, denominator);
-    APNUM_intFree(pool, denominator);
     APNUM_intFree(pool, numerator);
+    APNUM_intFree(pool, denominator);
     return nlen + dlen + 1;
 }
 
@@ -431,6 +431,10 @@ void APNUM_ratAddInP(APNUM_pool_t pool, APNUM_rat* a, const APNUM_rat* b)
         APNUM_intAddInP(pool, a->numerator, b->numerator);
         return;
     }
+    APNUM_rat* c = APNUM_ratNew(pool);
+    APNUM_ratAdd(pool, c, a, b);
+    APNUM_ratDup(a, c);
+    APNUM_ratFree(pool, c);
 }
 
 
@@ -441,6 +445,10 @@ void APNUM_ratSubInP(APNUM_pool_t pool, APNUM_rat* a, const APNUM_rat* b)
         APNUM_intSubInP(pool, a->numerator, b->numerator);
         return;
     }
+    APNUM_rat* c = APNUM_ratNew(pool);
+    APNUM_ratSub(pool, c, a, b);
+    APNUM_ratDup(a, c);
+    APNUM_ratFree(pool, c);
 }
 
 
@@ -451,6 +459,10 @@ void APNUM_ratMulInP(APNUM_pool_t pool, APNUM_rat* a, const APNUM_rat* b)
         APNUM_intMulInP(pool, a->numerator, b->numerator);
         return;
     }
+    APNUM_rat* c = APNUM_ratNew(pool);
+    APNUM_ratMul(pool, c, a, b);
+    APNUM_ratDup(a, c);
+    APNUM_ratFree(pool, c);
 }
 
 
@@ -463,6 +475,10 @@ void APNUM_ratDivInP(APNUM_pool_t pool, APNUM_rat* a, const APNUM_rat* b)
         APNUM_ratFromInt(pool, a, numerator, b->numerator);
         return;
     }
+    APNUM_rat* c = APNUM_ratNew(pool);
+    APNUM_ratDiv(pool, c, a, b);
+    APNUM_ratDup(a, c);
+    APNUM_ratFree(pool, c);
 }
 
 
@@ -488,6 +504,15 @@ void APNUM_ratAdd(APNUM_pool_t pool, APNUM_rat* out, const APNUM_rat* a, const A
         APNUM_intFromS32(pool, out->denominator, 1);
         return;
     }
+    APNUM_int* n = APNUM_intNew(pool);
+    APNUM_int* d = APNUM_intNew(pool);
+    APNUM_intMul(pool, n, a->numerator, b->denominator);
+    APNUM_intMul(pool, d, b->numerator, a->denominator);
+    APNUM_intAddInP(pool, n, d);
+    APNUM_intMul(pool, d, a->denominator, b->denominator);
+    APNUM_ratFromInt(pool, out, n, d);
+    APNUM_intFree(pool, n);
+    APNUM_intFree(pool, d);
 }
 
 
@@ -501,6 +526,15 @@ void APNUM_ratSub(APNUM_pool_t pool, APNUM_rat* out, const APNUM_rat* a, const A
         APNUM_intFromS32(pool, out->denominator, 1);
         return;
     }
+    APNUM_int* n = APNUM_intNew(pool);
+    APNUM_int* d = APNUM_intNew(pool);
+    APNUM_intMul(pool, n, a->numerator, b->denominator);
+    APNUM_intMul(pool, d, b->numerator, a->denominator);
+    APNUM_intSubInP(pool, n, d);
+    APNUM_intMul(pool, d, a->denominator, b->denominator);
+    APNUM_ratFromInt(pool, out, n, d);
+    APNUM_intFree(pool, n);
+    APNUM_intFree(pool, d);
 }
 
 
@@ -514,6 +548,13 @@ void APNUM_ratMul(APNUM_pool_t pool, APNUM_rat* out, const APNUM_rat* a, const A
         APNUM_intFromS32(pool, out->denominator, 1);
         return;
     }
+    APNUM_int* n = APNUM_intNew(pool);
+    APNUM_int* d = APNUM_intNew(pool);
+    APNUM_intMul(pool, n, a->numerator, b->numerator);
+    APNUM_intMul(pool, d, a->denominator, b->denominator);
+    APNUM_ratFromInt(pool, out, n, d);
+    APNUM_intFree(pool, n);
+    APNUM_intFree(pool, d);
 }
 
 
@@ -526,6 +567,13 @@ void APNUM_ratDiv(APNUM_pool_t pool, APNUM_rat* out, const APNUM_rat* a, const A
         APNUM_ratFromInt(pool, out, a->numerator, b->numerator);
         return;
     }
+    APNUM_int* n = APNUM_intNew(pool);
+    APNUM_int* d = APNUM_intNew(pool);
+    APNUM_intMul(pool, n, a->numerator, b->denominator);
+    APNUM_intMul(pool, d, a->denominator, b->numerator);
+    APNUM_ratFromInt(pool, out, n, d);
+    APNUM_intFree(pool, n);
+    APNUM_intFree(pool, d);
 }
 
 
