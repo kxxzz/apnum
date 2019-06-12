@@ -333,7 +333,7 @@ static void test(void)
         r = APNUM_ratCmp(pool, a, b);
         assert(0 == r);
 
-        APNUM_ratFromStr(pool, a, 10, "100/-3");
+        APNUM_ratFromStr(pool, a, 10, "-100/-3");
         APNUM_ratFromStr(pool, b, 10, "33/99");
         APNUM_ratDiv(pool, c, a, b);
 
@@ -345,6 +345,21 @@ static void test(void)
         APNUM_ratFree(pool, a);
         APNUM_ratFree(pool, b);
         APNUM_ratFree(pool, c);
+    }
+
+    {
+        APNUM_rat* a = APNUM_ratNew(pool);
+        APNUM_ratFromStrWithBaseFmt(pool, a, "1/-3");
+
+        f32 f;
+        APNUM_ratToF32(pool, a, &f);
+
+        char buf[1024];
+        n = sprintf(buf, "%f", f);
+        buf[n] = 0;
+        printf("%s\n", buf);
+
+        APNUM_ratFree(pool, a);
     }
 
     APNUM_poolFree(pool);

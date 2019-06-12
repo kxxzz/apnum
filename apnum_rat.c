@@ -293,14 +293,32 @@ bool APNUM_ratToS64(APNUM_pool_t pool, APNUM_rat* a, s64* out)
 
 bool APNUM_ratToF32(APNUM_pool_t pool, APNUM_rat* a, f32* out)
 {
-    // todo
-    return false;
+    f32 n, d;
+    if (!APNUM_intToF32(pool, a->numerator, &n))
+    {
+        return false;
+    }
+    if (!APNUM_intToF32(pool, a->denominator, &d))
+    {
+        return false;
+    }
+    *out = n / d;
+    return true;
 }
 
 bool APNUM_ratToF64(APNUM_pool_t pool, APNUM_rat* a, f64* out)
 {
-    // todo
-    return false;
+    f64 n, d;
+    if (!APNUM_intToF64(pool, a->numerator, &n))
+    {
+        return false;
+    }
+    if (!APNUM_intToF64(pool, a->denominator, &d))
+    {
+        return false;
+    }
+    *out = n / d;
+    return true;
 }
 
 

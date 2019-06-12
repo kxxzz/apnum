@@ -68,6 +68,8 @@ bool APNUM_intToU32(APNUM_pool_t pool, APNUM_int* a, u32* out);
 bool APNUM_intToU64(APNUM_pool_t pool, APNUM_int* a, u64* out);
 bool APNUM_intToS32(APNUM_pool_t pool, APNUM_int* a, s32* out);
 bool APNUM_intToS64(APNUM_pool_t pool, APNUM_int* a, s64* out);
+bool APNUM_intToF32(APNUM_pool_t pool, APNUM_int* a, f32* out);
+bool APNUM_intToF64(APNUM_pool_t pool, APNUM_int* a, f64* out);
 
 u32 APNUM_intFromStr(APNUM_pool_t pool, APNUM_int* out, u32 base, const char* str);
 u32 APNUM_intToStr(APNUM_pool_t pool, const APNUM_int* a, u32 base, char* strBuf, u32 strBufSize);
@@ -122,7 +124,6 @@ bool APNUM_ratToU32(APNUM_pool_t pool, APNUM_rat* a, u32* out);
 bool APNUM_ratToU64(APNUM_pool_t pool, APNUM_rat* a, u64* out);
 bool APNUM_ratToS32(APNUM_pool_t pool, APNUM_rat* a, s32* out);
 bool APNUM_ratToS64(APNUM_pool_t pool, APNUM_rat* a, s64* out);
-
 bool APNUM_ratToF32(APNUM_pool_t pool, APNUM_rat* a, f32* out);
 bool APNUM_ratToF64(APNUM_pool_t pool, APNUM_rat* a, f64* out);
 

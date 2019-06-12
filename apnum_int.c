@@ -497,7 +497,41 @@ bool APNUM_intToS64(APNUM_pool_t pool, APNUM_int* a, s64* out)
     }
 }
 
+bool APNUM_intToF32(APNUM_pool_t pool, APNUM_int* a, f32* out)
+{
+    const f32 max_n = FLT_MAX / APNUM_Digit_Base;
+    f32 n = 0;
+    for (u32 i = 0; i < a->digits->length; ++i)
+    {
+        if (n > max_n)
+        {
+            return false;
+        }
+        n *= APNUM_Digit_Base;
+        u32 j = a->digits->length - 1 - i;
+        n = n + a->digits->data[j];
+    }
+    *out = a->neg ? -n : n;
+    return true;
+}
 
+bool APNUM_intToF64(APNUM_pool_t pool, APNUM_int* a, f64* out)
+{
+    const f64 max_n = DBL_MAX / APNUM_Digit_Base;
+    f64 n = 0;
+    for (u32 i = 0; i < a->digits->length; ++i)
+    {
+        if (n > max_n)
+        {
+            return false;
+        }
+        n *= APNUM_Digit_Base;
+        u32 j = a->digits->length - 1 - i;
+        n = n + a->digits->data[j];
+    }
+    *out = a->neg ? -n : n;
+    return true;
+}
 
 
 

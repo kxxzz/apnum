@@ -9,6 +9,7 @@
 #include <string.h>
 #include <math.h>
 #include <assert.h>
+#include <float.h>
 
 #include <vec.h>
 
