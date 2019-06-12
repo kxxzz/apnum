@@ -339,25 +339,43 @@ u32 APNUM_ratToStrWithBaseFmt(APNUM_pool_t pool, const APNUM_rat* a, APNUM_int_S
 
 void APNUM_ratAddInP(APNUM_pool_t pool, APNUM_rat* a, const APNUM_rat* b)
 {
-
+    if (APNUM_ratIsInt(a) && APNUM_ratIsInt(b))
+    {
+        APNUM_intAddInP(pool, a->numerator, b->numerator);
+        return;
+    }
 }
 
 
 void APNUM_ratSubInP(APNUM_pool_t pool, APNUM_rat* a, const APNUM_rat* b)
 {
-
+    if (APNUM_ratIsInt(a) && APNUM_ratIsInt(b))
+    {
+        APNUM_intSubInP(pool, a->numerator, b->numerator);
+        return;
+    }
 }
 
 
 void APNUM_ratMulInP(APNUM_pool_t pool, APNUM_rat* a, const APNUM_rat* b)
 {
-
+    if (APNUM_ratIsInt(a) && APNUM_ratIsInt(b))
+    {
+        APNUM_intMulInP(pool, a->numerator, b->numerator);
+        return;
+    }
 }
 
 
 void APNUM_ratDivInP(APNUM_pool_t pool, APNUM_rat* a, const APNUM_rat* b)
 {
-
+    if (APNUM_ratIsInt(a) && APNUM_ratIsInt(b))
+    {
+        APNUM_int* numerator = APNUM_intNew(pool);
+        APNUM_intDup(numerator, a->numerator);
+        APNUM_ratFromInt(pool, a, numerator, b->numerator);
+        return;
+    }
 }
 
 
