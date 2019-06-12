@@ -372,6 +372,34 @@ static void APNUM_intDigitsFromU64(APNUM_int* a, u64 u)
     }
 }
 
+static void APNUM_intDigitsFromF32(APNUM_int* a, f32 u)
+{
+    assert(u >= 0);
+    vec_resize(a->digits, 0);
+    while (u)
+    {
+        f32 t = u / APNUM_Digit_Base;
+        APNUM_Digit r = (APNUM_Digit)(u - t * APNUM_Digit_Base);
+        if (!r) break;
+        vec_push(a->digits, r);
+        u /= APNUM_Digit_Base;
+    }
+}
+
+static void APNUM_intDigitsFromF64(APNUM_int* a, f64 u)
+{
+    assert(u >= 0);
+    vec_resize(a->digits, 0);
+    while (u)
+    {
+        f64 t = u / APNUM_Digit_Base;
+        APNUM_Digit r = (APNUM_Digit)(u - t * APNUM_Digit_Base);
+        if (!r) break;
+        vec_push(a->digits, r);
+        u /= APNUM_Digit_Base;
+    }
+}
+
 
 
 
@@ -403,6 +431,20 @@ void APNUM_intFromS64(APNUM_pool_t pool, APNUM_int* out, s64 i)
     u64 u = i < 0 ? -i : i;
     APNUM_intDigitsFromU64(out, u);
     APNUM_intSetNeg(out, i < 0);
+}
+
+void APNUM_intFromF32(APNUM_pool_t pool, APNUM_int* out, f32 f)
+{
+    f32 u = f < 0 ? -f : f;
+    APNUM_intDigitsFromF32(out, u);
+    APNUM_intSetNeg(out, f < 0);
+}
+
+void APNUM_intFromF64(APNUM_pool_t pool, APNUM_int* out, f64 f)
+{
+    f64 u = f < 0 ? -f : f;
+    APNUM_intDigitsFromF64(out, u);
+    APNUM_intSetNeg(out, f < 0);
 }
 
 
