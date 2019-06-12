@@ -63,8 +63,6 @@ void APNUM_intFromU32(APNUM_pool_t pool, APNUM_int* out, u32 u, bool neg);
 void APNUM_intFromU64(APNUM_pool_t pool, APNUM_int* out, u64 u, bool neg);
 void APNUM_intFromS32(APNUM_pool_t pool, APNUM_int* out, s32 i);
 void APNUM_intFromS64(APNUM_pool_t pool, APNUM_int* out, s64 i);
-void APNUM_intFromF32(APNUM_pool_t pool, APNUM_int* out, f32 f);
-void APNUM_intFromF64(APNUM_pool_t pool, APNUM_int* out, f64 f);
 
 bool APNUM_intToU32(APNUM_pool_t pool, APNUM_int* a, u32* out);
 bool APNUM_intToU64(APNUM_pool_t pool, APNUM_int* a, u64* out);
