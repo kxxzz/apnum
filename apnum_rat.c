@@ -414,6 +414,8 @@ void APNUM_ratAdd(APNUM_pool_t pool, APNUM_rat* out, const APNUM_rat* a, const A
 }
 
 
+
+
 void APNUM_ratSub(APNUM_pool_t pool, APNUM_rat* out, const APNUM_rat* a, const APNUM_rat* b)
 {
     if (APNUM_ratIsInt(a) && APNUM_ratIsInt(b))
@@ -423,6 +425,8 @@ void APNUM_ratSub(APNUM_pool_t pool, APNUM_rat* out, const APNUM_rat* a, const A
         return;
     }
 }
+
+
 
 
 void APNUM_ratMul(APNUM_pool_t pool, APNUM_rat* out, const APNUM_rat* a, const APNUM_rat* b)
@@ -436,9 +440,15 @@ void APNUM_ratMul(APNUM_pool_t pool, APNUM_rat* out, const APNUM_rat* a, const A
 }
 
 
+
+
 void APNUM_ratDiv(APNUM_pool_t pool, APNUM_rat* out, const APNUM_rat* a, const APNUM_rat* b)
 {
-
+    if (0 == APNUM_intCmp(a->denominator, b->denominator))
+    {
+        APNUM_ratFromInt(pool, out, a->numerator, b->numerator);
+        return;
+    }
 }
 
 
