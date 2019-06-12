@@ -333,7 +333,9 @@ static void test(void)
         r = APNUM_ratCmp(pool, a, b);
         assert(0 == r);
 
-        APNUM_ratSub(pool, c, a, b);
+        APNUM_ratFromStr(pool, a, 10, "100/-3");
+        APNUM_ratFromStr(pool, b, 10, "33/99");
+        APNUM_ratDiv(pool, c, a, b);
 
         char buf[1024];
         n = APNUM_ratToStr(pool, c, 10, buf, sizeof(buf));
