@@ -28,8 +28,8 @@ APNUM_rat* APNUM_ratNew(APNUM_pool_t pool)
         APNUM_rat* a = vec_last(pool->freeRationals);
         vec_pop(pool->freeRationals);
 
-        APNUM_intFromU32(pool, a->numerator, 0, 0);
-        APNUM_intFromU32(pool, a->denominator, 1, 0);
+        APNUM_intFromS32(pool, a->numerator, 0);
+        APNUM_intFromS32(pool, a->denominator, 1);
         return a;
     }
     else
@@ -39,7 +39,7 @@ APNUM_rat* APNUM_ratNew(APNUM_pool_t pool)
 
         a->numerator = APNUM_intNew(pool);
         a->denominator = APNUM_intNew(pool);
-        APNUM_intFromU32(pool, a->denominator, 1, 0);
+        APNUM_intFromS32(pool, a->denominator, 1);
         return a;
     }
 }
@@ -223,8 +223,8 @@ u32 APNUM_ratFromStr(APNUM_pool_t pool, APNUM_rat* out, u32 base, const char* st
     }
     if (str[nlen] != '/')
     {
-        APNUM_intFromU32(pool, denominator, 1, 0);
-        APNUM_ratFromInt(pool, out, numerator, denominator);
+        APNUM_intDup(out->numerator, numerator);
+        APNUM_intFromS32(pool, out->denominator, 1);
         APNUM_intFree(pool, denominator);
         APNUM_intFree(pool, numerator);
         return nlen;
@@ -284,8 +284,8 @@ u32 APNUM_ratFromStrWithBaseFmt(APNUM_pool_t pool, APNUM_rat* out, const char* s
     }
     if (str[nlen] != '/')
     {
-        APNUM_intFromU32(pool, denominator, 1, 0);
-        APNUM_ratFromInt(pool, out, numerator, denominator);
+        APNUM_intDup(out->numerator, numerator);
+        APNUM_intFromS32(pool, out->denominator, 1);
         APNUM_intFree(pool, denominator);
         APNUM_intFree(pool, numerator);
         return nlen;
@@ -405,19 +405,34 @@ void APNUM_ratDivInP(APNUM_pool_t pool, APNUM_rat* a, const APNUM_rat* b)
 
 void APNUM_ratAdd(APNUM_pool_t pool, APNUM_rat* out, const APNUM_rat* a, const APNUM_rat* b)
 {
-
+    if (APNUM_ratIsInt(a) && APNUM_ratIsInt(b))
+    {
+        APNUM_intAdd(pool, out->numerator, a->numerator, b->numerator);
+        APNUM_intFromS32(pool, out->denominator, 1);
+        return;
+    }
 }
 
 
 void APNUM_ratSub(APNUM_pool_t pool, APNUM_rat* out, const APNUM_rat* a, const APNUM_rat* b)
 {
-
+    if (APNUM_ratIsInt(a) && APNUM_ratIsInt(b))
+    {
+        APNUM_intSub(pool, out->numerator, a->numerator, b->numerator);
+        APNUM_intFromS32(pool, out->denominator, 1);
+        return;
+    }
 }
 
 
 void APNUM_ratMul(APNUM_pool_t pool, APNUM_rat* out, const APNUM_rat* a, const APNUM_rat* b)
 {
-
+    if (APNUM_ratIsInt(a) && APNUM_ratIsInt(b))
+    {
+        APNUM_intMul(pool, out->numerator, a->numerator, b->numerator);
+        APNUM_intFromS32(pool, out->denominator, 1);
+        return;
+    }
 }
 
 
