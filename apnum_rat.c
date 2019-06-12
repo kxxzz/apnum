@@ -289,24 +289,6 @@ bool APNUM_ratToF64(APNUM_pool_t pool, APNUM_rat* a, f64* out)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 u32 APNUM_ratFromStr(APNUM_pool_t pool, APNUM_rat* out, u32 base, const char* str)
 {
     APNUM_int* numerator = APNUM_intNew(pool);
