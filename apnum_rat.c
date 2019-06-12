@@ -73,6 +73,16 @@ void APNUM_ratNeg(APNUM_rat* a)
     APNUM_intNeg(a->numerator);
 }
 
+void APNUM_ratNum(APNUM_int* out, const APNUM_rat* a)
+{
+    APNUM_intDup(out, a->numerator);
+}
+
+void APNUM_ratDom(APNUM_int* out, const APNUM_rat* a)
+{
+    APNUM_intDup(out, a->denominator);
+}
+
 bool APNUM_ratIsZero(const APNUM_rat* a)
 {
     return APNUM_intIsZero(a->numerator);

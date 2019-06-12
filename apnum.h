@@ -89,6 +89,8 @@ void APNUM_ratFree(APNUM_pool_t pool, APNUM_rat* a);
 void APNUM_ratDup(APNUM_rat* out, const APNUM_rat* a);
 void APNUM_ratAbs(APNUM_rat* a);
 void APNUM_ratNeg(APNUM_rat* a);
+void APNUM_ratNum(APNUM_int* out, const APNUM_rat* a);
+void APNUM_ratDom(APNUM_int* out, const APNUM_rat* a);
 bool APNUM_ratIsZero(const APNUM_rat* a);
 bool APNUM_ratIsOne(const APNUM_rat* a);
 bool APNUM_ratIsNeg(const APNUM_rat* a);
