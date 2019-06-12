@@ -262,6 +262,30 @@ bool APNUM_ratToS64(APNUM_pool_t pool, APNUM_rat* a, s64* out)
 
 
 
+bool APNUM_ratToF32(APNUM_pool_t pool, APNUM_rat* a, f32* out)
+{
+    // todo
+    return false;
+}
+
+bool APNUM_ratToF64(APNUM_pool_t pool, APNUM_rat* a, f64* out)
+{
+    // todo
+    return false;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
