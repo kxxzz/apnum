@@ -369,11 +369,19 @@ static void test(void)
 
 
 
+static int mainReturn(int r)
+{
+#if !defined(NDEBUG) && defined(_WIN32)
+    system("pause");
+#endif
+    return r;
+}
+
 
 int main(int argc, char* argv[])
 {
     test();
-    return 0;
+    mainReturn(0);
 }
 
 
