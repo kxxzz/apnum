@@ -481,6 +481,7 @@ bool APNUM_intToS64(APNUM_pool_t pool, APNUM_int* a, s64* out)
     APNUM_intFromS64(pool, b, INT64_MAX);
     if (APNUM_intCmpAbs(a, b) <= 0)
     {
+        APNUM_intFree(pool, b);
         s64 n = 0;
         for (u32 i = 0; i < a->digits->length; ++i)
         {
@@ -493,6 +494,7 @@ bool APNUM_intToS64(APNUM_pool_t pool, APNUM_int* a, s64* out)
     }
     else
     {
+        APNUM_intFree(pool, b);
         return false;
     }
 }

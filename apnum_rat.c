@@ -28,6 +28,8 @@ APNUM_rat* APNUM_ratNew(APNUM_pool_t pool)
         APNUM_rat* a = vec_last(pool->freeRationals);
         vec_pop(pool->freeRationals);
 
+        a->numerator = APNUM_intNew(pool);
+        a->denominator = APNUM_intNew(pool);
         APNUM_intFromS32(pool, a->numerator, 0);
         APNUM_intFromS32(pool, a->denominator, 1);
         return a;
@@ -46,6 +48,8 @@ APNUM_rat* APNUM_ratNew(APNUM_pool_t pool)
 
 void APNUM_ratFree(APNUM_pool_t pool, APNUM_rat* a)
 {
+    APNUM_intFree(pool, a->numerator);
+    APNUM_intFree(pool, a->denominator);
     vec_push(pool->freeRationals, a);
 }
 

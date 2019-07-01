@@ -27,6 +27,9 @@ void APNUM_ratFreeMem(APNUM_rat* a);
 
 void APNUM_poolFree(APNUM_pool_t pool)
 {
+    assert(pool->freeRationals->length == pool->rationals->length);
+    assert(pool->freeIntegers->length == pool->integers->length);
+
     vec_free(pool->freeRationals);
     for (u32 i = 0; i < pool->rationals->length; ++i)
     {
