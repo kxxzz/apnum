@@ -408,6 +408,8 @@ u32 APNUM_ratFromStrWithBaseFmt(APNUM_pool_t pool, APNUM_rat* out, const char* s
     u32 nlen = APNUM_intFromStrWithBaseFmt(pool, numerator, str);
     if (!nlen)
     {
+        APNUM_intFree(pool, numerator);
+        APNUM_intFree(pool, denominator);
         return 0;
     }
     if (str[nlen] != '/')
